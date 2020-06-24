@@ -332,5 +332,5 @@ void HelloTriangleApplication::createLogicalDevice() {
     }
 
     // Because we're only creating a single queue from this family, we'll simply use index 0
-    vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
+    vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue); 
 }

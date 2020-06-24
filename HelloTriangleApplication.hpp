@@ -6,6 +6,8 @@
 #include <vector>
 #include <optional>
 
+#define NDEBUG
+
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
 #else
@@ -38,6 +40,7 @@ private:
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;   // are implicitly cleaned up when the VkInstance is destroyed
     VkDevice device;    // store the logical device handle
     VkQueue graphicsQueue;  //Device queues are implicitly cleaned up when the VkDevice is destroyed
+    VkSurfaceKHR surface;
 
     void initWindow();
     void initVulkan();
