@@ -21,6 +21,10 @@ const std::vector<const char*> validationLayers = {
     "VK_LAYER_KHRONOS_validation"
 };
 
+const std::vector<const char*> deviceExtensions = {
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsFamily;
     std::optional<uint32_t> presentFamily;
@@ -29,6 +33,12 @@ struct QueueFamilyIndices {
         return graphicsFamily.has_value() && 
             presentFamily.has_value();
     }
+};
+
+struct SwapChainSupportDetails {
+    VkSurfaceCapabilitiesKHR capabilities;
+    std::vector<VkSurfaceFormatKHR> formats;
+    std::vector<VkPresentModeKHR> presentModes;
 };
 
 class HelloTriangleApplication {
@@ -41,9 +51,11 @@ private:
     VkDebugUtilsMessengerEXT debugMessenger;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;   // are implicitly cleaned up when the VkInstance is destroyed
     VkDevice device;    // store the logical device handle
-    VkQueue graphicsQueue;  //Device queues are implicitly cleaned up when the VkDevice is destroyed
+    // Device queues are implicitly cleaned up when the VkDevice is destroyed
+    // family that supports drawing commands
+    VkQueue graphicsQueue;  
     VkSurfaceKHR surface;
-    VkQueue presentQueue;
+    VkQueue presentQueue;   // family that supports presenting to our window surface
 
     void initWindow();
     void initVulkan();
@@ -59,6 +71,8 @@ private:
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     void createLogicalDevice();
     void createSurface();
+    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 };
 
 #endif
