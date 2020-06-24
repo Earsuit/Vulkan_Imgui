@@ -6,7 +6,7 @@
 #include <vector>
 #include <optional>
 
-#define NDEBUG
+// #define NDEBUG
 
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
@@ -23,9 +23,11 @@ const std::vector<const char*> validationLayers = {
 
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
     
     bool isComplete() {
-        return graphicsFamily.has_value();
+        return graphicsFamily.has_value() && 
+            presentFamily.has_value();
     }
 };
 
@@ -41,6 +43,7 @@ private:
     VkDevice device;    // store the logical device handle
     VkQueue graphicsQueue;  //Device queues are implicitly cleaned up when the VkDevice is destroyed
     VkSurfaceKHR surface;
+    VkQueue presentQueue;
 
     void initWindow();
     void initVulkan();
@@ -55,6 +58,7 @@ private:
     bool isDeviceSuitable(VkPhysicalDevice device);
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     void createLogicalDevice();
+    void createSurface();
 };
 
 #endif
