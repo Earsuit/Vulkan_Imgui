@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <set>
+#include <cstdint> // Necessary for UINT32_MAX
 
 // The VKAPI_ATTR and VKAPI_CALL ensure that the function has the right signature for Vulkan to call it
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -76,6 +77,7 @@ void HelloTriangleApplication::initVulkan()
     createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
+    createSwapChain();      //after logical device creation
 }
 
 void HelloTriangleApplication::createInstance() 
@@ -157,6 +159,9 @@ void HelloTriangleApplication::mainLoop()
 
 void HelloTriangleApplication::cleanup() 
 {
+    // should be cleaned up before the device
+    vkDestroySwapchainKHR(device, swapChain, nullptr);
+    
     vkDestroyDevice(device, nullptr);
 
     if (enableValidationLayers) {
@@ -277,11 +282,22 @@ bool HelloTriangleApplication::isDeviceSuitable(VkPhysicalDevice device) {
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
     bool extensionsSupported = checkDeviceExtensionSupport(device);
+    
+    // Swap chain support is sufficient for this tutorial
+    // if there is at least one supported image format and
+    // one supported presentation mode given the window surface we have.
+    bool swapChainAdequate = false;
+    if (extensionsSupported) {
+        // It is important that we only try to query for swap chain support after verifying that the extension is available
+        SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
+        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+    }
 
     return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
-           deviceFeatures.geometryShader &&
+    /*deviceFeatures.geometryShader &&*/     // This festure doesn't work on my Mac
            findQueueFamilies(device).isComplete()&& 
-           extensionsSupported;
+           extensionsSupported &&
+           swapChainAdequate;
 }
 
 QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(VkPhysicalDevice device) {
@@ -386,6 +402,135 @@ bool HelloTriangleApplication::checkDeviceExtensionSupport(VkPhysicalDevice devi
 
 SwapChainSupportDetails HelloTriangleApplication::querySwapChainSupport(VkPhysicalDevice device) {
     SwapChainSupportDetails details;
+    
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
+    
+    uint32_t formatCount;
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
+    
+    if (formatCount != 0) {
+        details.formats.resize(formatCount);
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
+    }
+    
+    uint32_t presentModeCount;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
+    
+    if (presentModeCount != 0) {
+        details.presentModes.resize(presentModeCount);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
+    }
 
     return details;
+}
+
+VkSurfaceFormatKHR HelloTriangleApplication::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
+    for (const auto& availableFormat : availableFormats) {
+        // Here we choose the most common SRGB color format: VK_FORMAT_B8G8R8A8_SRGB
+        if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+            return availableFormat;
+        }
+    }
+    
+    // If that also fails then we could start ranking the available formats based on how "good" they are,
+    // but in most cases it's okay to just settle with the first format that is specified.
+    return availableFormats[0];
+}
+
+VkPresentModeKHR HelloTriangleApplication::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
+    // prefer triple buffering when supported
+    for (const auto& availablePresentMode : availablePresentModes) {
+        if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+            return availablePresentMode;
+        }
+    }
+    
+    // Only the VK_PRESENT_MODE_FIFO_KHR mode is guaranteed to be available
+    return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+VkExtent2D HelloTriangleApplication::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
+    // check if the surface allows to dismatch the resolution of the window
+    if (capabilities.currentExtent.width != UINT32_MAX) {
+        return capabilities.currentExtent;
+    } else {
+        VkExtent2D actualExtent = {WIDTH, HEIGHT};
+        
+        actualExtent.width = std::max(capabilities.minImageExtent.width, std::min(capabilities.maxImageExtent.width, actualExtent.width));
+        actualExtent.height = std::max(capabilities.minImageExtent.height, std::min(capabilities.maxImageExtent.height, actualExtent.height));
+        
+        return actualExtent;
+    }
+}
+
+void HelloTriangleApplication::createSwapChain() {
+    SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
+    
+    VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
+    VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
+    VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+    
+    // minimium number of imnages in the swap chain it requires to function.
+    // However, simply sticking to this minimum means that we may sometimes have to
+    // wait on the driver to complete internal operations before we can acquire another image to render to.
+    // it is recommended to request at least one more image than the minimum
+    uint32_t imageCount = swapChainSupport.capabilities.minImageCount+1;
+    
+    // make sure to not exceed the maximum number of images.
+    // 0 is a special value that means that there is no maximum
+    if (swapChainSupport.capabilities.maxImageCount > 0 &&
+        imageCount > swapChainSupport.capabilities.maxImageCount) {
+        imageCount = swapChainSupport.capabilities.maxImageCount;
+    }
+    
+    VkSwapchainCreateInfoKHR createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+    createInfo.surface = surface;
+    createInfo.minImageCount = imageCount;
+    createInfo.imageFormat = surfaceFormat.format;
+    createInfo.imageColorSpace = surfaceFormat.colorSpace;
+    createInfo.imageExtent = extent;
+    // specifies the amount of layers each image consists of
+    // This is always 1 unless you are developing a stereoscopic 3D application.
+    createInfo.imageArrayLayers = 1;
+    // what kind of operations we'll use the images in the swap chain for.
+    // In this tutorial we're going to render directly to them,
+    // which means that they're used as color attachment.
+    createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+    
+    QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+    uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+    
+    //  specify how to handle swap chain images that will be used across multiple queue families.
+    // EXCLUSIVE mode if they are the same
+    if (indices.graphicsFamily != indices.presentFamily) {
+        // Concurrent mode requires you to specify in advance between which queue families ownership will be shared
+        createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+        createInfo.queueFamilyIndexCount = 2;
+        createInfo.pQueueFamilyIndices = queueFamilyIndices;
+    } else {
+        createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+        createInfo.queueFamilyIndexCount = 0; // Optional
+        createInfo.pQueueFamilyIndices = nullptr; // Optional
+    }
+    
+    // For this tutorial, we don't want any transformation
+    createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
+    
+    // specifies if the alpha channel should be used for blending with other windows in the window system.
+    // You'll almost always want to simply ignore the alpha channel, hence VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR.
+    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    
+    // The presentMode member speaks for itself.
+    // If the clipped member is set to VK_TRUE
+    // then that means that we don't care about the color of pixels that are obscured,
+    // for example because another window is in front of them.
+    createInfo.presentMode = presentMode;
+    createInfo.clipped = VK_TRUE;
+    
+    createInfo.oldSwapchain = VK_NULL_HANDLE;
+    
+    if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create swap chain!");
+    }
 }

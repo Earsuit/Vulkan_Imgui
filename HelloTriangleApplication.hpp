@@ -50,12 +50,13 @@ private:
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;   // are implicitly cleaned up when the VkInstance is destroyed
-    VkDevice device;    // store the logical device handle
+    VkDevice device;    // logical device handle
     // Device queues are implicitly cleaned up when the VkDevice is destroyed
     // family that supports drawing commands
     VkQueue graphicsQueue;  
     VkSurfaceKHR surface;
     VkQueue presentQueue;   // family that supports presenting to our window surface
+    VkSwapchainKHR swapChain;
 
     void initWindow();
     void initVulkan();
@@ -73,6 +74,10 @@ private:
     void createSurface();
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+    VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+    void createSwapChain();
 };
 
 #endif
