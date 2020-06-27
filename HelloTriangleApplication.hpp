@@ -57,6 +57,13 @@ private:
     VkSurfaceKHR surface;
     VkQueue presentQueue;   // family that supports presenting to our window surface
     VkSwapchainKHR swapChain;
+    // The images were created by the implementation for the swap chain
+    // and they will be automatically cleaned up once the swap chain has been destroyed,
+    // therefore we don't need to add any cleanup code.
+    std::vector<VkImage> swapChainImages;
+    // sstore the format and extent we've chosen for the swap chain images
+    VkFormat swapChainImageFormat;
+    VkExtent2D swapChainExtent;
 
     void initWindow();
     void initVulkan();
