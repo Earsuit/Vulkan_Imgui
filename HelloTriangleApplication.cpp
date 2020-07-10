@@ -187,6 +187,7 @@ void HelloTriangleApplication::mainLoop()
 void HelloTriangleApplication::cleanup()
 {
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+    vkDestroyRenderPass(device, renderPass, nullptr);
 
     for (auto imageView : swapChainImageViews) {
         vkDestroyImageView(device, imageView, nullptr);
@@ -780,4 +781,49 @@ void HelloTriangleApplication::createGraphicsPipeline()
 
 void HelloTriangleApplication::createRenderPass()
 {
+    VkAttachmentDescription colorAttachment{};
+    // The format of the color attachment should match the format of the swap chain images
+    colorAttachment.format = swapChainImageFormat;
+    // we're not doing anything with multisampling yet, so we'll stick to 1 sample
+    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+    // The loadOp and storeOp determine what to do with the data in the attachment before rendering and after rendering.
+    // In our case we're going to use the clear operation to clear the framebuffer to black before drawing a new frame
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+    // We're interested in seeing the rendered triangle on the screen, so we're going with the store operation here.
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    // Our application won't do anything with the stencil buffer, so the results of loading and storing are irrelevant
+    colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    // Using VK_IMAGE_LAYOUT_UNDEFINED for initialLayout means that we don't care what previous layout the image was in.
+    // The caveat of this special value is that the contents of the image are not guaranteed to be preserved,
+    // but that doesn't matter since we're going to clear it anyway
+    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    // We want the image to be ready for presentation using the swap chain after rendering
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+    VkAttachmentReference colorAttachmentRef{};
+    // specifies which attachment to reference by its index in the attachment descriptions array
+    // Our array consists of a single VkAttachmentDescription, so its index is 0
+    colorAttachmentRef.attachment = 0;
+    // The layout specifies which layout we would like the attachment to have during a subpass that uses this reference
+    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass{};
+    // Vulkan may also support compute subpasses in the future, so we have to be explicit about this being a graphics subpass
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    // The index of the attachment in this array is directly referenced from
+    // the fragment shader with the layout(location = 0) out vec4 outColor directive!
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
+
+    VkRenderPassCreateInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.attachmentCount = 1;
+    renderPassInfo.pAttachments = &colorAttachment;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
+
+    if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+        throw std::runtime_error("failed to create render pass!");
+    }
 }
