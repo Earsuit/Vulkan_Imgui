@@ -67,15 +67,19 @@ private:
     std::vector<VkImageView> swapChainImageViews;
     VkRenderPass renderPass;
     VkPipelineLayout pipelineLayout;
+    VkPipeline graphicsPipeline;
     std::vector<VkFramebuffer> swapChainFramebuffers;
     VkCommandPool commandPool;
     // Command buffers will be automatically freed when their command pool is destroyed, 
     // so we don't need an explicit cleanup
     std::vector<VkCommandBuffer> commandBuffers;
+    VkSemaphore imageAvailableSemaphore;
+    VkSemaphore renderFinishedSemaphore;
 
     void initWindow();
     void initVulkan();
     void createInstance();
+    void drawFrame();
     void mainLoop();
     void cleanup();
     bool checkValidationLayerSupport();
@@ -100,6 +104,7 @@ private:
     void createFramebuffers();
     void createCommandPool();
     void createCommandBuffers();
+    void createSemaphores();
 };
 
 #endif
