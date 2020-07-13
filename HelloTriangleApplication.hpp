@@ -67,6 +67,11 @@ private:
     std::vector<VkImageView> swapChainImageViews;
     VkRenderPass renderPass;
     VkPipelineLayout pipelineLayout;
+    std::vector<VkFramebuffer> swapChainFramebuffers;
+    VkCommandPool commandPool;
+    // Command buffers will be automatically freed when their command pool is destroyed, 
+    // so we don't need an explicit cleanup
+    std::vector<VkCommandBuffer> commandBuffers;
 
     void initWindow();
     void initVulkan();
@@ -92,6 +97,9 @@ private:
     void createGraphicsPipeline();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void createRenderPass();
+    void createFramebuffers();
+    void createCommandPool();
+    void createCommandBuffers();
 };
 
 #endif
