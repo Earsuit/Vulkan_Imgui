@@ -37,6 +37,7 @@ private:
     std::unique_ptr<GLFWwindow, deletePwindow> pWindow;
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
+    VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 
     void initVulkan();
     void mainLoop();
@@ -54,6 +55,8 @@ private:
                           void* pUserData);
     void setupDebugMessenger();
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+    void pickPhysicalDevice();
+    bool isDeviceSuitable(VkPhysicalDevice device);
 };
 
 #endif
