@@ -5,25 +5,22 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-
 #include <cstdlib>
-#include <vector>
 #include <memory>
 #include <optional>
+#include <vector>
 
 const std::vector<const char*> validationLayers = {
-    "VK_LAYER_KHRONOS_validation"
-};
+    "VK_LAYER_KHRONOS_validation"};
 
 #ifdef NDEBUG
-    const bool enableValidationLayers = false;
+const bool enableValidationLayers = false;
 #else
-    const bool enableValidationLayers = true;
+const bool enableValidationLayers = true;
 #endif
 
-struct deletePwindow
-{
-    void operator()(GLFWwindow *ptr)
+struct deletePwindow {
+    void operator()(GLFWwindow* ptr)
     {
         glfwDestroyWindow(ptr);
         glfwTerminate();
@@ -32,9 +29,12 @@ struct deletePwindow
 
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
 
-    bool isComplete() {
-        return graphicsFamily.has_value();
+    bool isComplete()
+    {
+        return graphicsFamily.has_value() &&
+               presentFamily.has_value();
     }
 };
 
@@ -49,6 +49,8 @@ private:
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice device; //logical device
     VkQueue graphicsQueue;
+    VkQueue presentQueue;
+    VkSurfaceKHR surface;
 
     void initVulkan();
     void mainLoop();
@@ -57,19 +59,17 @@ private:
     void createInstance();
     bool checkValidationLayerSupport();
     std::vector<const char*> getRequiredExtensions();
-    static VKAPI_ATTR 
-            VkBool32 
-            VKAPI_CALL 
-            debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                          VkDebugUtilsMessageTypeFlagsEXT messageType,
-                          const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                          void* pUserData);
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                                        VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+                                                        void* pUserData);
     void setupDebugMessenger();
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     void pickPhysicalDevice();
     bool isDeviceSuitable(VkPhysicalDevice device);
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-    void createLogicalDevice() ;
+    void createLogicalDevice();
+    void createSurface();
 };
 
 #endif

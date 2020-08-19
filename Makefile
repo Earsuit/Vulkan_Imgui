@@ -18,4 +18,4 @@ clean:
 .PHONY: clang-format
 clang-format:
 	/bin/bash ./clang-format-wrapper.sh $(SOURCE) $(INCLUDE)
-	clang-format -i -style=file $(SOURCE)
+	clang-format -i -style=file $(SOURCE) $(INCLUDE)
