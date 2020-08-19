@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <vector>
 #include <memory>
+#include <optional>
 
 const std::vector<const char*> validationLayers = {
     "VK_LAYER_KHRONOS_validation"
@@ -29,6 +30,14 @@ struct deletePwindow
     }
 };
 
+struct QueueFamilyIndices {
+    std::optional<uint32_t> graphicsFamily;
+
+    bool isComplete() {
+        return graphicsFamily.has_value();
+    }
+};
+
 class HelloTriangleApplication {
 public:
     void run();
@@ -38,6 +47,8 @@ private:
     VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+    VkDevice device; //logical device
+    VkQueue graphicsQueue;
 
     void initVulkan();
     void mainLoop();
@@ -57,6 +68,8 @@ private:
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     void pickPhysicalDevice();
     bool isDeviceSuitable(VkPhysicalDevice device);
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+    void createLogicalDevice() ;
 };
 
 #endif
