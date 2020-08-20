@@ -73,6 +73,8 @@ private:
     std::vector<VkFramebuffer> swapChainFramebuffers;
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
+    VkSemaphore imageAvailableSemaphore;
+    VkSemaphore renderFinishedSemaphore;
 
     void initVulkan();
     void mainLoop();
@@ -105,6 +107,8 @@ private:
     void createFramebuffers();
     void createCommandPool();
     void createCommandBuffers();
+    void drawFrame();
+    void createSemaphores();
 };
 
 #endif
