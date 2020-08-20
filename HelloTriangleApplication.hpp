@@ -67,6 +67,12 @@ private:
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
     std::vector<VkImageView> swapChainImageViews;
+    VkPipelineLayout pipelineLayout;
+    VkRenderPass renderPass;
+    VkPipeline graphicsPipeline;
+    std::vector<VkFramebuffer> swapChainFramebuffers;
+    VkCommandPool commandPool;
+    std::vector<VkCommandBuffer> commandBuffers;
 
     void initVulkan();
     void mainLoop();
@@ -93,6 +99,12 @@ private:
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     void createSwapChain();
     void createImageViews();
+    void createGraphicsPipeline();
+    VkShaderModule createShaderModule(const std::vector<char>& code);
+    void createRenderPass();
+    void createFramebuffers();
+    void createCommandPool();
+    void createCommandBuffers();
 };
 
 #endif
