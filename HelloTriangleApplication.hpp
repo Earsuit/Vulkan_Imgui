@@ -112,6 +112,8 @@ private:
     void createCommandBuffers();
     void drawFrame();
     void createSyncObjects();
+    void recreateSwapChain();
+    void cleanupSwapChain();
 };
 
 #endif
