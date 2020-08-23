@@ -55,6 +55,11 @@ static void DestroyDebugUtilsMessengerEXT(VkInstance instance,
     }
 }
 
+static void framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+    auto app = reinterpret_cast<HelloTriangleApplication*>(glfwGetWindowUserPointer(window));
+    app->framebufferResized = true;
+}
+
 void HelloTriangleApplication::run()
 {
     initWindow();
@@ -69,10 +74,14 @@ void HelloTriangleApplication::initWindow()
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     pWindow = std::move(std::unique_ptr<GLFWwindow, deletePwindow>(glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr),
                                                                    deletePwindow()));
+    
+    glfwSetWindowUserPointer(pWindow.get(), this);
+    
+    glfwSetFramebufferSizeCallback(pWindow.get(), framebufferResizeCallback);
 }
 
 void HelloTriangleApplication::mainLoop()
@@ -904,12 +913,29 @@ void HelloTriangleApplication::drawFrame()
     presentInfo.pSwapchains = swapChains;
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr; // Optional
-    vkQueuePresentKHR(presentQueue, &presentInfo);
+    result = vkQueuePresentKHR(presentQueue, &presentInfo);
+    
+    if (result == VK_ERROR_OUT_OF_DATE_KHR ||
+        result == VK_SUBOPTIMAL_KHR ||
+        framebufferResized) {
+        framebufferResized = false;
+        recreateSwapChain();
+    } else if (result != VK_SUCCESS) {
+        throw std::runtime_error("failed to present swap chain image!");
+    }
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 void HelloTriangleApplication::recreateSwapChain() {
+    int width = 0, height = 0;
+    glfwGetFramebufferSize(pWindow.get(), &width, &height);
+    
+    while (width == 0 || height == 0) {
+        glfwGetFramebufferSize(pWindow.get(), &width, &height);
+        glfwWaitEvents();
+    }
+    
     vkDeviceWaitIdle(device);
     
     cleanupSwapChain();

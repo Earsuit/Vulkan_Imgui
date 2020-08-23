@@ -51,6 +51,7 @@ struct SwapChainSupportDetails {
 
 class HelloTriangleApplication {
 public:
+    bool framebufferResized = false;
     void run();
 
 private:
