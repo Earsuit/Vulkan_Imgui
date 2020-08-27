@@ -1,7 +1,7 @@
 CFLAGS = -std=c++17
 LDFLAGS = `pkg-config --static --libs glfw3` -lvulkan
 
-INCLUDE = HelloTriangleApplication.hpp
+INCLUDE = HelloTriangleApplication.hpp stb_image.h
 SOURCE = HelloTriangleApplication.cpp main.cpp
 
 VulkanTest: main.cpp
