@@ -1,4 +1,8 @@
-#include "HelloTriangleApplication.hpp"
+#include "HelloTriangleApplication.h"
+
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"
 
 #include <iostream>
 #include <stdexcept>
