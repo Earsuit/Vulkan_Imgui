@@ -1,4 +1,4 @@
-#include "VulkanApplication.h"
+#include "VulkanBase.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -9,7 +9,7 @@
 
 int main()
 {
-    VulkanApplication app;
+    VulkanBase app;
 
     try {
         app.run();
