@@ -108,16 +108,23 @@ class VulkanBase {
 public:
     bool framebufferResized = false;
     void run();
-
-private:
-    std::unique_ptr<GLFWwindow, deletePwindow> pWindow;
     VkInstance instance;
-    VkDebugUtilsMessengerEXT debugMessenger;
+    VkSurfaceKHR surface;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     VkDevice device; //logical device
     VkQueue graphicsQueue;
     VkQueue presentQueue;
-    VkSurfaceKHR surface;
+    VkAllocationCallbacks* allocator = nullptr;
+
+    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+    VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+
+private:
+    std::unique_ptr<GLFWwindow, deletePwindow> pWindow;
+    VkDebugUtilsMessengerEXT debugMessenger;
+    
     VkSwapchainKHR swapChain;
     std::vector<VkImage> swapChainImages;
     VkFormat swapChainImageFormat;
@@ -167,10 +174,6 @@ private:
     void createLogicalDevice();
     void createSurface();
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
-    VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-    VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-    VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     void createSwapChain();
     void createImageViews();
     void createGraphicsPipeline();
