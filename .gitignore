@@ -1,5 +1,5 @@
 VulkanTest
-.vscode/settings.json
+.vscode/
 
 #shaders
 *.spv
