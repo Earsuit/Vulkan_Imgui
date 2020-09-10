@@ -108,6 +108,8 @@ class VulkanBase {
 public:
     bool framebufferResized = false;
     void run();
+
+    std::unique_ptr<GLFWwindow, deletePwindow> pWindow;
     VkInstance instance;
     VkSurfaceKHR surface;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
@@ -115,16 +117,20 @@ public:
     VkQueue graphicsQueue;
     VkQueue presentQueue;
     VkAllocationCallbacks* allocator = nullptr;
+    uint32_t minImageCount;
+    uint32_t swapChainImageCount;
+    VkRenderPass renderPass;
+    VkCommandPool commandPool;
+    std::vector<VkCommandBuffer> commandBuffers;
 
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
 private:
-    std::unique_ptr<GLFWwindow, deletePwindow> pWindow;
     VkDebugUtilsMessengerEXT debugMessenger;
-    
     VkSwapchainKHR swapChain;
     std::vector<VkImage> swapChainImages;
     VkFormat swapChainImageFormat;
@@ -132,11 +138,8 @@ private:
     std::vector<VkImageView> swapChainImageViews;
     VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout pipelineLayout;
-    VkRenderPass renderPass;
     VkPipeline graphicsPipeline;
     std::vector<VkFramebuffer> swapChainFramebuffers;
-    VkCommandPool commandPool;
-    std::vector<VkCommandBuffer> commandBuffers;
     std::vector<VkSemaphore> imageAvailableSemaphores;
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> inFlightFences;
@@ -170,7 +173,6 @@ private:
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     void pickPhysicalDevice();
     bool isDeviceSuitable(VkPhysicalDevice device);
-    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     void createLogicalDevice();
     void createSurface();
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);

@@ -512,6 +512,8 @@ void VulkanBase::createSwapChain()
         imageCount = swapChainSupport.capabilities.maxImageCount;
     }
 
+    minImageCount = imageCount;
+
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface = surface;
@@ -548,6 +550,7 @@ void VulkanBase::createSwapChain()
 
     vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
     swapChainImages.resize(imageCount);
+    swapChainImageCount = imageCount;
     vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
 
     swapChainImageFormat = surfaceFormat.format;
