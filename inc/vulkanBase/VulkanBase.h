@@ -124,6 +124,7 @@ public:
     VkCommandBuffer beginSingleTimeCommands();
     void endSingleTimeCommands(VkCommandBuffer commandBuffer);
     std::optional<uint32_t> prepareFrame();
+    void submitFrame(uint32_t imageIndex, VkSemaphore* signalSemaphores);
 
     virtual void prepare();
 
