@@ -57,10 +57,24 @@ public:
     VkAllocationCallbacks* allocator = nullptr;
     uint32_t minImageCount;
     uint32_t swapChainImageCount;
-    VkRenderPass renderPass;
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
     bool framebufferResized = false;
+    VkRenderPass renderPass;
+    std::vector<VkFramebuffer> swapChainFramebuffers;
+    VkExtent2D swapChainExtent;
+    std::vector<VkSemaphore> imageAvailableSemaphores;
+    std::vector<VkSemaphore> renderFinishedSemaphores;
+    std::vector<VkFence> inFlightFences;
+    std::vector<VkFence> imagesInFlight;
+    bool enableValidationLayers;
+    VkDebugUtilsMessengerEXT debugMessenger;
+    VkSwapchainKHR swapChain;
+    std::vector<VkImage> swapChainImages;
+    VkFormat swapChainImageFormat;
+    std::vector<VkImageView> swapChainImageViews;
+    VkDescriptorSetLayout descriptorSetLayout;
+    size_t currentFrame = 0;
 
     VulkanBase(uint32_t width, uint32_t height, const std::string, bool enableValidationLayers);
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
@@ -72,6 +86,7 @@ public:
     void endSingleTimeCommands(VkCommandBuffer commandBuffer);
     std::optional<uint32_t> prepareFrame();
     void submitFrame(uint32_t imageIndex, VkSemaphore* signalSemaphores);
+    void recreateSwapChain();
 
     virtual void prepare();
 
@@ -94,20 +109,9 @@ protected:
     VkImageView createImageView(VkImage image, VkFormat format);
 
     virtual void initVulkan();
-    virtual void cleanup();
+    void cleanup();
 
 private:
-    bool enableValidationLayers;
-    VkDebugUtilsMessengerEXT debugMessenger;
-    VkSwapchainKHR swapChain;
-    std::vector<VkImage> swapChainImages;
-    VkFormat swapChainImageFormat;
-    VkExtent2D swapChainExtent;
-    std::vector<VkImageView> swapChainImageViews;
-    VkDescriptorSetLayout descriptorSetLayout;
-    std::vector<VkFramebuffer> swapChainFramebuffers;
-    size_t currentFrame = 0;
-
     void initWindow(uint32_t width, uint32_t height, const std::string title);
     void createInstance();
     bool checkValidationLayerSupport();
@@ -127,9 +131,11 @@ private:
     void createImageViews();
     void createCommandPool();
     void createCommandBuffers();
-    void recreateSwapChain();
     void cleanupSwapChain();
-    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);    
+    void createRenderPass();
+    void createFramebuffers();
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);  
+    void createSyncObjects();  
 };
 
 #endif

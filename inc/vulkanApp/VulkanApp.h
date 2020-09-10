@@ -78,20 +78,9 @@ public:
     void buildCommandBuffers();
 
 private:
-    VkRenderPass renderPass;
-    VkSwapchainKHR swapChain;
-    std::vector<VkImage> swapChainImages;
-    VkFormat swapChainImageFormat;
-    VkExtent2D swapChainExtent;
-    std::vector<VkImageView> swapChainImageViews;
     VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
-    std::vector<VkFramebuffer> swapChainFramebuffers;
-    std::vector<VkSemaphore> imageAvailableSemaphores;
-    std::vector<VkSemaphore> renderFinishedSemaphores;
-    std::vector<VkFence> inFlightFences;
-    std::vector<VkFence> imagesInFlight;
     size_t currentFrame = 0;
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
@@ -106,15 +95,10 @@ private:
     VkImageView textureImageView;
     VkSampler textureSampler;
 
-    void mainLoop();
     void initVulkan();
-    void cleanup();
     void createGraphicsPipeline();
     VkShaderModule createShaderModule(const std::vector<char>& code);
-    void createRenderPass();
-    void createFramebuffers();
     void drawFrame();
-    void createSyncObjects();
     void recreateSwapChain();
     void createVertexBuffer();
     void createIndexBuffer();

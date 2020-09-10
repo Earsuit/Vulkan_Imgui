@@ -1,4 +1,4 @@
-#include "VulkanBase.h"
+#include "VulkanApp.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -12,7 +12,7 @@ constexpr uint32_t HEIGHT = 600;
 
 int main()
 {
-    VulkanBase app(WIDTH, HEIGHT, "Vulkan", true);
+    VulkanApp app(WIDTH, HEIGHT, "Vulkan", true);
 
     app.prepare();
 
