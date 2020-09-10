@@ -3,3 +3,6 @@ VulkanTest
 
 #shaders
 *.spv
+
+#compilation
+*.o
