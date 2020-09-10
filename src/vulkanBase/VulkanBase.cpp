@@ -68,6 +68,11 @@ static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
     app->framebufferResized = true;
 }
 
+VulkanBase::VulkanBase(bool enableValidationLayers) 
+{
+    this->enableValidationLayers = enableValidationLayers;
+}
+
 void VulkanBase::run()
 {
     initWindow();

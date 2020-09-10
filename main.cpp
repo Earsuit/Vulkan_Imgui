@@ -9,7 +9,7 @@
 
 int main()
 {
-    VulkanBase app;
+    VulkanBase app(true);
 
     try {
         app.run();

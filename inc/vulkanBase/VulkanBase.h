@@ -18,14 +18,6 @@ const std::vector<const char*> validationLayers = {
 const std::vector<const char*> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
-// #define NDEBUG
-
-#ifdef NDEBUG
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
-
 struct deletePwindow {
     void operator()(GLFWwindow* ptr)
     {
@@ -123,6 +115,7 @@ public:
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
 
+    VulkanBase(bool enableValidationLayers);
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
@@ -132,6 +125,7 @@ public:
     void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
 private:
+    bool enableValidationLayers;
     VkDebugUtilsMessengerEXT debugMessenger;
     VkSwapchainKHR swapChain;
     std::vector<VkImage> swapChainImages;
