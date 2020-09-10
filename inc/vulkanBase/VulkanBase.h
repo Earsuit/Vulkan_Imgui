@@ -115,7 +115,7 @@ public:
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;
 
-    VulkanBase(bool enableValidationLayers);
+    VulkanBase(uint32_t width, uint32_t height, const std::string, bool enableValidationLayers);
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
@@ -123,6 +123,9 @@ public:
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     VkCommandBuffer beginSingleTimeCommands();
     void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+    std::optional<uint32_t> prepareFrame();
+
+    virtual void prepare();
 
 private:
     bool enableValidationLayers;
@@ -157,7 +160,7 @@ private:
     void initVulkan();
     void mainLoop();
     void cleanup();
-    void initWindow();
+    void initWindow(uint32_t width, uint32_t height, const std::string title);
     void createInstance();
     bool checkValidationLayerSupport();
     std::vector<const char*> getRequiredExtensions();

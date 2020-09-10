@@ -7,9 +7,14 @@
 #include <iostream>
 #include <stdexcept>
 
+constexpr uint32_t WIDTH = 800;
+constexpr uint32_t HEIGHT = 600;
+
 int main()
 {
-    VulkanBase app(true);
+    VulkanBase app(WIDTH, HEIGHT, "Vulkan", true);
+
+    app.prepare();
 
     try {
         app.run();

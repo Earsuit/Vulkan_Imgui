@@ -15,8 +15,6 @@
 #include <set>
 #include <stdexcept>
 
-constexpr uint32_t WIDTH = 800;
-constexpr uint32_t HEIGHT = 600;
 constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
 static std::vector<char> readFile(const std::string& filename)
@@ -68,20 +66,47 @@ static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
     app->framebufferResized = true;
 }
 
-VulkanBase::VulkanBase(bool enableValidationLayers) 
+VulkanBase::VulkanBase(uint32_t width, uint32_t height, const std::string title, bool enableValidationLayers) 
 {
     this->enableValidationLayers = enableValidationLayers;
+
+    initWindow(width, height, title);
+}
+
+void VulkanBase::prepare()
+{
+    initVulkan();
 }
 
 void VulkanBase::run()
 {
-    initWindow();
-    initVulkan();
     mainLoop();
     cleanup();
 }
 
-void VulkanBase::initWindow()
+std::optional<uint32_t> VulkanBase::prepareFrame()
+{
+    uint32_t imageIndex;
+    std::optional<uint32_t> ret;
+    VkResult result = VK_SUCCESS;
+
+    vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+    
+    result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+
+    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
+        recreateSwapChain();
+        return ret; 
+    }
+    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+        throw std::runtime_error("failed to acquire swap chain image!");
+    }
+
+    ret = imageIndex;
+    return ret;
+}
+
+void VulkanBase::initWindow(uint32_t width, uint32_t height, const std::string title)
 {
     glfwInit();
 
@@ -89,7 +114,7 @@ void VulkanBase::initWindow()
 
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-    pWindow = std::move(std::unique_ptr<GLFWwindow, deletePwindow>(glfwCreateWindow(WIDTH, HEIGHT, "Vulkan", nullptr, nullptr),
+    pWindow = std::move(std::unique_ptr<GLFWwindow, deletePwindow>(glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr),
                                                                    deletePwindow()));
 
     glfwSetWindowUserPointer(pWindow.get(), this);
@@ -898,28 +923,22 @@ void VulkanBase::createSyncObjects()
 
 void VulkanBase::drawFrame()
 {
-    vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
+    VkResult result = VK_SUCCESS;
+    std::optional<uint32_t> imageIndex = prepareFrame();
 
-    uint32_t imageIndex;
-    VkResult result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
-
-    if (result == VK_ERROR_OUT_OF_DATE_KHR) {
-        recreateSwapChain();
+    if (!imageIndex.has_value()) {
         return;
-    }
-    else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-        throw std::runtime_error("failed to acquire swap chain image!");
     }
 
     // Check if a previous frame is using this image (i.e. there is its fence to wait on)
-    if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
-        vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+    if (imagesInFlight[imageIndex.value()] != VK_NULL_HANDLE) {
+        vkWaitForFences(device, 1, &imagesInFlight[imageIndex.value()], VK_TRUE, UINT64_MAX);
     }
 
     // Mark the image as now being in use by this frame
-    imagesInFlight[imageIndex] = inFlightFences[currentFrame];
+    imagesInFlight[imageIndex.value()] = inFlightFences[currentFrame];
 
-    updateUniformBuffer(imageIndex);
+    updateUniformBuffer(imageIndex.value());
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -930,7 +949,7 @@ void VulkanBase::drawFrame()
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
+    submitInfo.pCommandBuffers = &commandBuffers[imageIndex.value()];
 
     VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
     submitInfo.signalSemaphoreCount = 1;
@@ -950,7 +969,7 @@ void VulkanBase::drawFrame()
     VkSwapchainKHR swapChains[] = {swapChain};
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = swapChains;
-    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.pImageIndices = &imageIndex.value();
     presentInfo.pResults = nullptr; // Optional
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
 
