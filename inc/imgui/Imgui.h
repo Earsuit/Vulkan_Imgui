@@ -16,16 +16,16 @@
 
 class Imgui{
 public:
-    Imgui(VulkanBase& base) : vulkan(base) {}
+    Imgui(VulkanBase& base);
+    void init();
+    void initVulkanResource(VkRenderPass renderPass);
 
 private:
     VkDescriptorPool descriptorPool;
-    ImGui_ImplVulkan_InitInfo initInfo{};
     VulkanBase& vulkan;
-    std::shared_ptr<GLFWwindow> pWindow;
 
     void createDescriptorPool();
-    void createSwapChain();
+    void uploadFont();
 };
 
 #endif

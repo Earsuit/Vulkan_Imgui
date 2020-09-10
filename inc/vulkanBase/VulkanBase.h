@@ -128,6 +128,8 @@ public:
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+    VkCommandBuffer beginSingleTimeCommands();
+    void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
 private:
     VkDebugUtilsMessengerEXT debugMessenger;
@@ -207,8 +209,6 @@ private:
                      VkFormat format, VkImageTiling tiling,
                      VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
                      VkImage& image, VkDeviceMemory& imageMemory);
-    VkCommandBuffer beginSingleTimeCommands();
-    void endSingleTimeCommands(VkCommandBuffer commandBuffer);
     void transitionImageLayout(VkImage image,
                                VkFormat format,
                                VkImageLayout oldLayout,
