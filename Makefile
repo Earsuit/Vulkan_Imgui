@@ -2,10 +2,10 @@ CC = g++
 CFLAGS = -std=c++17
 LDFLAGS = `pkg-config --static --libs glfw3` -lvulkan
 
-INC_DIR = ./inc ./inc/vulkanBase ./inc/imgui ./imgui/inc 
+INC_DIR = ./inc ./inc/vulkanBase ./inc/vulkanApp ./inc/imgui ./imgui/inc  
 INC =$(foreach d, $(INC_DIR), -I$d)
 HEADER = $(foreach d, $(INC_DIR), $(wildcard $d/*.h))
-SOURCE = $(wildcard src/vulkanBase/*.cpp src/imgui/*.cpp imgui/src/*.cpp *.cpp)
+SOURCE = $(wildcard src/vulkanBase/*.cpp src/vulkanApp/*.cpp src/imgui/*.cpp imgui/src/*.cpp *.cpp)
 O_OBJECT= $(SOURCE:%.cpp=%.o)
 
 all: $(O_OBJECT) VulkanTest
