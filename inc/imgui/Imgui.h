@@ -19,10 +19,14 @@ public:
     Imgui(VulkanBase& base);
     void init();
     void initVulkanResource(VkRenderPass renderPass);
+    void newFrame();
+    void endNewFrame();
+    void drawFrame(VkCommandBuffer buffer);
+    void showDemoWindow() {ImGui::ShowDemoWindow();}
 
 private:
     VkDescriptorPool descriptorPool;
-    VulkanBase& vulkan;
+    VulkanBase& vulkan;  
 
     void createDescriptorPool();
     void uploadFont();

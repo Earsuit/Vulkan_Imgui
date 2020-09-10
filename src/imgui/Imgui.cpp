@@ -85,3 +85,20 @@ void Imgui::initVulkanResource(VkRenderPass renderPass)
 
     uploadFont();
 }
+
+void Imgui::newFrame()
+{
+    ImGui_ImplVulkan_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+}
+
+void Imgui::endNewFrame()
+{
+    ImGui::Render();
+}
+
+void Imgui::drawFrame(VkCommandBuffer buffer) 
+{
+    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), buffer);
+}
