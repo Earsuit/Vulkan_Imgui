@@ -295,6 +295,8 @@ void VulkanApp::drawFrame()
         return;
     }
 
+    buildCommandBuffers();
+
     updateUniformBuffer(imageIndex.value());
 
     submitFrame(imageIndex.value());
