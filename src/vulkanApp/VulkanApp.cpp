@@ -76,6 +76,12 @@ void VulkanApp::buildCommandBuffers()
 
         vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+        VkViewport viewport = createViewport((float)swapChainExtent.width, (float)swapChainExtent.height, 0.0f, 1.0f);
+        vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
+
+        VkRect2D scissor = createRect2D(swapChainExtent.width, swapChainExtent.height, 0, 0);
+        vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
+
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
         VkBuffer vertexBuffers[] = {vertexBuffer};
@@ -145,12 +151,12 @@ void VulkanApp::createGraphicsPipeline()
     scissor.offset = {0, 0};
     scissor.extent = swapChainExtent;
 
+    // we don't specify the scissor and viewport here
+    // we specify when record commands
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportState.viewportCount = 1;
-    viewportState.pViewports = &viewport;
     viewportState.scissorCount = 1;
-    viewportState.pScissors = &scissor;
 
     VkPipelineRasterizationStateCreateInfo rasterizer{};
     rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -216,6 +222,16 @@ void VulkanApp::createGraphicsPipeline()
         throw std::runtime_error("failed to create pipeline layout!");
     }
 
+    std::vector<VkDynamicState> pDynamicStates = {
+        VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_SCISSOR
+    };
+
+    VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{};
+    pipelineDynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+    pipelineDynamicStateCreateInfo.pDynamicStates = pDynamicStates.data();
+    pipelineDynamicStateCreateInfo.dynamicStateCount = static_cast<uint32_t>(pDynamicStates.size());
+
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = 2;
@@ -227,7 +243,7 @@ void VulkanApp::createGraphicsPipeline()
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pDepthStencilState = nullptr; // Optional
     pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.pDynamicState = nullptr; // Optional
+    pipelineInfo.pDynamicState = &pipelineDynamicStateCreateInfo; // Optional
     pipelineInfo.layout = pipelineLayout;
     pipelineInfo.renderPass = renderPass;
     pipelineInfo.subpass = 0;

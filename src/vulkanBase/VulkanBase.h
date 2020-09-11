@@ -107,6 +107,8 @@ protected:
                                VkImageLayout newLayout);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
     VkImageView createImageView(VkImage image, VkFormat format);
+    VkViewport createViewport(float width, float height, float minDepth, float maxDepth);
+    VkRect2D createRect2D(int32_t width, int32_t height, int32_t offsetX, int32_t offsetY);
 
     virtual void initVulkan();
     void cleanup();

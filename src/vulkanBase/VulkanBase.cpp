@@ -651,7 +651,7 @@ void VulkanBase::createCommandBuffers()
 
 void VulkanBase::recreateSwapChain()
 {
-    int width = 0, height = 0;
+    int width, height;
     glfwGetFramebufferSize(pWindow.get(), &width, &height);
 
     while (width == 0 || height == 0) {
@@ -989,4 +989,24 @@ void VulkanBase::createFramebuffers()
             throw std::runtime_error("failed to create framebuffer!");
         }
     }
+}
+
+VkViewport VulkanBase::createViewport(float width, float height, float minDepth, float maxDepth)
+{
+    VkViewport viewport {};
+    viewport.width = width;
+    viewport.height = height;
+    viewport.minDepth = minDepth;
+    viewport.maxDepth = maxDepth;
+    return viewport;
+}
+
+VkRect2D VulkanBase::createRect2D(int32_t width, int32_t height, int32_t offsetX, int32_t offsetY)
+{
+    VkRect2D rect2D {};
+    rect2D.extent.width = width;
+    rect2D.extent.height = height;
+    rect2D.offset.x = offsetX;
+    rect2D.offset.y = offsetY;
+    return rect2D;
 }
