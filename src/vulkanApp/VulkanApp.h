@@ -3,14 +3,13 @@
 
 #include "VulkanBase.h"
 
-#include <vulkan/vulkan.h>
-
 #include <array>
 #include <cstdlib>
 #include <glm/glm.hpp>
 #include <memory>
 #include <optional>
 #include <vector>
+#include <vulkan/vulkan.h>
 
 struct UniformBufferObject {
     glm::mat4 model;
@@ -65,14 +64,13 @@ const std::vector<Vertex> vertices = {
     {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
     {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}};
 
-class VulkanApp : public VulkanBase 
-{
+class VulkanApp : public VulkanBase {
 public:
-    VulkanApp(uint32_t width, 
-              uint32_t height, 
-              const std::string title, 
-              bool enableValidationLayers) : 
-              VulkanBase(width, height, title, enableValidationLayers) {}
+    VulkanApp(uint32_t width,
+              uint32_t height,
+              const std::string title,
+              bool enableValidationLayers) :
+        VulkanBase(width, height, title, enableValidationLayers) {}
     void run();
     void prepare();
     void buildCommandBuffers();

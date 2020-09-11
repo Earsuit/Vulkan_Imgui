@@ -6,12 +6,14 @@ static void check_vk_result(VkResult err)
 {
     if (err == 0)
         return;
-    std::cout<<"[Imgui][Vulkan]"<<" : VkResult = "<<err<<std::endl;
+    std::cout << "[Imgui][Vulkan]"
+              << " : VkResult = " << err << std::endl;
     if (err < 0)
         abort();
 }
 
-Imgui::Imgui(VulkanBase& base): vulkan(base) 
+Imgui::Imgui(VulkanBase& base) :
+    vulkan(base)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -21,19 +23,18 @@ void Imgui::createDescriptorPool()
 {
     VkResult err = VK_SUCCESS;
     VkDescriptorPoolSize pool_sizes[] =
-    {
-        { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
-        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
-        { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
-        { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
-        { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
-        { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
-        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
-        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
-        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
-        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
-        { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
-    };
+        {
+            {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
+            {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
+            {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
+            {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000},
+            {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000},
+            {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000},
+            {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000},
+            {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000},
+            {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
+            {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
+            {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000}};
     VkDescriptorPoolCreateInfo pool_info = {};
 
     pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -64,7 +65,7 @@ void Imgui::uploadFont()
 
 void Imgui::initVulkanResource(VkRenderPass renderPass)
 {
-    ImGui_ImplVulkan_InitInfo init_info = { 0 };
+    ImGui_ImplVulkan_InitInfo init_info = {0};
 
     createDescriptorPool();
 
@@ -98,7 +99,7 @@ void Imgui::endNewFrame()
     ImGui::Render();
 }
 
-void Imgui::drawFrame(VkCommandBuffer buffer) 
+void Imgui::drawFrame(VkCommandBuffer buffer)
 {
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), buffer);
 }

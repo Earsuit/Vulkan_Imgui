@@ -134,8 +134,8 @@ private:
     void cleanupSwapChain();
     void createRenderPass();
     void createFramebuffers();
-    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);  
-    void createSyncObjects();  
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+    void createSyncObjects();
 };
 
 #endif

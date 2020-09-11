@@ -37,7 +37,7 @@ static void framebufferResizeCallback(GLFWwindow* window, int width, int height)
     app->framebufferResized = true;
 }
 
-VulkanBase::VulkanBase(uint32_t width, uint32_t height, const std::string title, bool enableValidationLayers) 
+VulkanBase::VulkanBase(uint32_t width, uint32_t height, const std::string title, bool enableValidationLayers)
 {
     this->enableValidationLayers = enableValidationLayers;
 
@@ -80,12 +80,12 @@ std::optional<uint32_t> VulkanBase::prepareFrame()
     VkResult result = VK_SUCCESS;
 
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
-    
+
     result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreateSwapChain();
-        return ret; 
+        return ret;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw std::runtime_error("failed to acquire swap chain image!");
@@ -112,8 +112,8 @@ void VulkanBase::submitFrame(uint32_t imageIndex)
     VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
     VkSwapchainKHR swapChains[] = {swapChain};
-    
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;   
+
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
@@ -712,10 +712,10 @@ uint32_t VulkanBase::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags p
 }
 
 void VulkanBase::createBuffer(VkDeviceSize size,
-                                            VkBufferUsageFlags usage,
-                                            VkMemoryPropertyFlags properties,
-                                            VkBuffer& buffer,
-                                            VkDeviceMemory& bufferMemory)
+                              VkBufferUsageFlags usage,
+                              VkMemoryPropertyFlags properties,
+                              VkBuffer& buffer,
+                              VkDeviceMemory& bufferMemory)
 {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -754,9 +754,9 @@ void VulkanBase::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize
 }
 
 void VulkanBase::createImage(uint32_t width, uint32_t height,
-                                           VkFormat format, VkImageTiling tiling,
-                                           VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-                                           VkImage& image, VkDeviceMemory& imageMemory)
+                             VkFormat format, VkImageTiling tiling,
+                             VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
+                             VkImage& image, VkDeviceMemory& imageMemory)
 {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -828,9 +828,9 @@ void VulkanBase::endSingleTimeCommands(VkCommandBuffer commandBuffer)
 }
 
 void VulkanBase::transitionImageLayout(VkImage image,
-                                                     VkFormat format,
-                                                     VkImageLayout oldLayout,
-                                                     VkImageLayout newLayout)
+                                       VkFormat format,
+                                       VkImageLayout oldLayout,
+                                       VkImageLayout newLayout)
 {
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
     VkPipelineStageFlags sourceStage;

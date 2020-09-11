@@ -2,7 +2,6 @@
 #define _IMGUI_H_
 
 #include "VulkanBase.h"
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_vulkan.h"
@@ -11,10 +10,9 @@
 
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
-
 #include <memory>
 
-class Imgui{
+class Imgui {
 public:
     Imgui(VulkanBase& base);
     void init();
@@ -22,11 +20,11 @@ public:
     void newFrame();
     void endNewFrame();
     void drawFrame(VkCommandBuffer buffer);
-    void showDemoWindow() {ImGui::ShowDemoWindow();}
+    void showDemoWindow() { ImGui::ShowDemoWindow(); }
 
 private:
     VkDescriptorPool descriptorPool;
-    VulkanBase& vulkan;  
+    VulkanBase& vulkan;
 
     void createDescriptorPool();
     void uploadFont();

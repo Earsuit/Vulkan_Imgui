@@ -4,12 +4,11 @@
 #include "stb_image.h"
 
 #define GLM_FORCE_RADIANS
+#include <chrono>
+#include <fstream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 #include <iostream>
-#include <fstream>
-#include <chrono>
 
 static std::vector<char> readFile(const std::string& filename)
 {
