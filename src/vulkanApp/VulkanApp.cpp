@@ -118,10 +118,10 @@ void VulkanApp::buildCommandBuffers()
 
             vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            VkViewport viewport = createViewport((float)swapChainExtent.width, (float)swapChainExtent.height, 0.0f, 1.0f);
+            VkViewport viewport = createViewport((float)offscreenPass.width, (float)offscreenPass.height, 0.0f, 1.0f);
             vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
 
-            VkRect2D scissor = createRect2D(swapChainExtent.width, swapChainExtent.height, 0, 0);
+            VkRect2D scissor = createRect2D(offscreenPass.width, offscreenPass.height, 0, 0);
             vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
 
             vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, offscreenPass.pipeline);
