@@ -891,7 +891,7 @@ void VulkanApp::drawImguiObjects()
     ImGui::ShowDemoWindow(&show_demo_window);
 
     ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-    ImGui::Image(myTextureId, ImVec2(200.0f, 100.0f));
+    ImGui::Image(myTextureId, ImGui::GetWindowSize());
     ImGui::End();
 
     imgui.get()->endNewFrame();
