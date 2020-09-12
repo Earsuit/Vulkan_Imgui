@@ -1,4 +1,4 @@
-#include "Imgui.h"
+#include "MyImgui.h"
 
 #include <iostream>
 
@@ -6,20 +6,20 @@ static void check_vk_result(VkResult err)
 {
     if (err == 0)
         return;
-    std::cout << "[Imgui][Vulkan]"
+    std::cout << "[MyImgui][Vulkan]"
               << " : VkResult = " << err << std::endl;
     if (err < 0)
         abort();
 }
 
-Imgui::Imgui(VulkanBase& base) :
-    vulkan(base)
+MyImgui::MyImgui(VulkanBase* base)
 {
+    vulkan = base;
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 }
 
-void Imgui::createDescriptorPool()
+void MyImgui::createDescriptorPool()
 {
     VkResult err = VK_SUCCESS;
     VkDescriptorPoolSize pool_sizes[] =
@@ -42,64 +42,64 @@ void Imgui::createDescriptorPool()
     pool_info.maxSets = 1000 * IM_ARRAYSIZE(pool_sizes);
     pool_info.poolSizeCount = (uint32_t)IM_ARRAYSIZE(pool_sizes);
     pool_info.pPoolSizes = pool_sizes;
-    err = vkCreateDescriptorPool(vulkan.device, &pool_info, vulkan.allocator, &descriptorPool);
+    err = vkCreateDescriptorPool(vulkan->device, &pool_info, vulkan->allocator, &descriptorPool);
     check_vk_result(err);
 }
 
-void Imgui::init()
+void MyImgui::init()
 {
     ImGuiIO& io = ImGui::GetIO();
     ImGui::StyleColorsDark();
 }
 
-void Imgui::uploadFont()
+void MyImgui::uploadFont()
 {
-    VkCommandBuffer command_buffer = vulkan.beginSingleTimeCommands();
+    VkCommandBuffer command_buffer = vulkan->beginSingleTimeCommands();
 
     ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
 
-    vulkan.endSingleTimeCommands(command_buffer);
+    vulkan->endSingleTimeCommands(command_buffer);
 
     ImGui_ImplVulkan_DestroyFontUploadObjects();
 }
 
-void Imgui::initVulkanResource(VkRenderPass renderPass)
+void MyImgui::initVulkanResource(VkRenderPass renderPass)
 {
     ImGui_ImplVulkan_InitInfo init_info = {0};
 
     createDescriptorPool();
 
-    ImGui_ImplGlfw_InitForVulkan(vulkan.pWindow.get(), true);
+    ImGui_ImplGlfw_InitForVulkan(vulkan->pWindow.get(), true);
 
-    init_info.Instance = vulkan.instance;
-    init_info.PhysicalDevice = vulkan.physicalDevice;
-    init_info.Device = vulkan.device;
-    init_info.QueueFamily = vulkan.findQueueFamilies(vulkan.physicalDevice).graphicsFamily.value();
-    init_info.Queue = vulkan.graphicsQueue;
+    init_info.Instance = vulkan->instance;
+    init_info.PhysicalDevice = vulkan->physicalDevice;
+    init_info.Device = vulkan->device;
+    init_info.QueueFamily = vulkan->findQueueFamilies(vulkan->physicalDevice).graphicsFamily.value();
+    init_info.Queue = vulkan->graphicsQueue;
     init_info.PipelineCache = nullptr;
     init_info.DescriptorPool = descriptorPool;
-    init_info.Allocator = vulkan.allocator;
-    init_info.MinImageCount = vulkan.minImageCount;
-    init_info.ImageCount = vulkan.swapChainImageCount;
+    init_info.Allocator = vulkan->allocator;
+    init_info.MinImageCount = vulkan->minImageCount;
+    init_info.ImageCount = vulkan->swapChainImageCount;
     init_info.CheckVkResultFn = check_vk_result;
     ImGui_ImplVulkan_Init(&init_info, renderPass);
 
     uploadFont();
 }
 
-void Imgui::newFrame()
+void MyImgui::newFrame()
 {
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
-void Imgui::endNewFrame()
+void MyImgui::endNewFrame()
 {
     ImGui::Render();
 }
 
-void Imgui::drawFrame(VkCommandBuffer buffer)
+void MyImgui::drawFrame(VkCommandBuffer buffer)
 {
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), buffer);
 }

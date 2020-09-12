@@ -2,6 +2,7 @@
 #define _VULKAN_APP_H_
 
 #include "VulkanBase.h"
+#include "MyImgui.h"
 
 #include <array>
 #include <cstdlib>
@@ -92,6 +93,7 @@ private:
     VkDeviceMemory textureImageMemory;
     VkImageView textureImageView;
     VkSampler textureSampler;
+    std::unique_ptr<MyImgui> imgui;
 
     void createGraphicsPipeline();
     VkShaderModule createShaderModule(const std::vector<char>& code);
@@ -108,6 +110,7 @@ private:
     void createTextureSampler();
     void createDescriptorPool();
     void handleWindowResize();
+    void prepareImgui();
 };
 
 #endif

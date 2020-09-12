@@ -12,9 +12,9 @@
 #include <GLFW/glfw3.h>
 #include <memory>
 
-class Imgui {
+class MyImgui {
 public:
-    Imgui(VulkanBase& base);
+    MyImgui(VulkanBase* base);
     void init();
     void initVulkanResource(VkRenderPass renderPass);
     void newFrame();
@@ -24,7 +24,7 @@ public:
 
 private:
     VkDescriptorPool descriptorPool;
-    VulkanBase& vulkan;
+    VulkanBase* vulkan;
 
     void createDescriptorPool();
     void uploadFont();

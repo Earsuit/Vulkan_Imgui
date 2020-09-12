@@ -1,5 +1,9 @@
 #include "VulkanApp.h"
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -71,11 +75,17 @@ void VulkanApp::prepare()
     createUniformBuffers();
     createDescriptorPool();
     createDescriptorSets();
+    prepareImgui();
     buildCommandBuffers();
 }
 
 void VulkanApp::buildCommandBuffers()
 {
+    imgui.get()->newFrame();
+    bool show_demo_window = true;
+    ImGui::ShowDemoWindow(&show_demo_window);
+    imgui.get()->endNewFrame();
+
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -116,6 +126,8 @@ void VulkanApp::buildCommandBuffers()
         vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
 
         vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+
+        imgui.get()->drawFrame(commandBuffers[i]);
 
         vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -319,6 +331,8 @@ void VulkanApp::drawFrame()
     }
 
     updateUniformBuffer(imageIndex);
+
+    buildCommandBuffers();
 
     if(!submitFrame(imageIndex)) {
         handleWindowResize();
@@ -585,4 +599,12 @@ void VulkanApp::createTextureSampler()
 void VulkanApp::handleWindowResize()
 {
     buildCommandBuffers();
+}
+
+void VulkanApp::prepareImgui()
+{
+    imgui = std::move(std::unique_ptr<MyImgui>(new MyImgui(this)));
+
+    imgui.get()->init();
+    imgui.get()->initVulkanResource(renderPass);
 }
