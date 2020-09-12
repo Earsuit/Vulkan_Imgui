@@ -87,9 +87,9 @@ void VulkanApp::buildCommandBuffers()
     bool show_another_window = true;
     ImGui::ShowDemoWindow(&show_demo_window);
 
-    // ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-    // ImGui::Image(ImGui_ImplVulkan_AddTexture(textureSampler, offscreenPass.color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), ImVec2(200.0f, 100.0f));
-    // ImGui::End();
+    ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+    ImGui::Image(ImGui_ImplVulkan_AddTexture(textureSampler, offscreenPass.color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), ImVec2(200.0f, 100.0f));
+    ImGui::End();
 
     imgui.get()->endNewFrame();
 
@@ -675,7 +675,7 @@ void VulkanApp::createOffscreensRenderPass()
     colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
     VkAttachmentReference colorAttachmentRef{};
     colorAttachmentRef.attachment = 0;
