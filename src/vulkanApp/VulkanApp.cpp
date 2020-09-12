@@ -35,6 +35,15 @@ static std::vector<char> readFile(const std::string& filename)
 
 VulkanApp::~VulkanApp()
 {
+    //offscreen
+    vkDestroyPipeline(device, offscreenPass.pipeline, nullptr);
+    vkDestroyFramebuffer(device, offscreenPass.frameBuffer, nullptr);
+    vkDestroyImageView(device, offscreenPass.color.view, nullptr);
+    vkDestroyImage(device, offscreenPass.color.image, nullptr);
+    vkFreeMemory(device, offscreenPass.color.mem, nullptr);
+    vkDestroyRenderPass(device, offscreenPass.renderPass, nullptr);
+
+
     vkDestroyPipeline(device, graphicsPipeline, nullptr);
     vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
 
@@ -401,7 +410,6 @@ void VulkanApp::drawFrame()
     if(!submitFrame(imageIndex)) {
         handleWindowResize();
     }
-    // throw std::runtime_error("failed to create shader module!");
 }
 
 void VulkanApp::createVertexBuffer()
