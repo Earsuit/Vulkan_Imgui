@@ -80,7 +80,6 @@ private:
     VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
-    size_t currentFrame = 0;
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
     VkBuffer indexBuffer;
