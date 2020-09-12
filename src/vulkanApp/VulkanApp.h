@@ -71,6 +71,7 @@ public:
               const std::string title,
               bool enableValidationLayers) :
         VulkanBase(width, height, title, enableValidationLayers) {}
+    ~VulkanApp();
     void run();
     void prepare();
     void buildCommandBuffers();
@@ -107,6 +108,7 @@ private:
     void createTextureImageView();
     void createTextureSampler();
     void createDescriptorPool();
+    void handleWindowResize();
 };
 
 #endif

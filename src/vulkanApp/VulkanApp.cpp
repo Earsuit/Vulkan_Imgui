@@ -29,6 +29,34 @@ static std::vector<char> readFile(const std::string& filename)
     return buffer;
 }
 
+VulkanApp::~VulkanApp()
+{
+    vkDestroyPipeline(device, graphicsPipeline, nullptr);
+    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+
+    vkDestroySampler(device, textureSampler, nullptr);
+
+    vkDestroyImageView(device, textureImageView, nullptr);
+
+    vkDestroyImage(device, textureImage, nullptr);
+    vkFreeMemory(device, textureImageMemory, nullptr);
+
+    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+
+    vkDestroyBuffer(device, indexBuffer, nullptr);
+    vkFreeMemory(device, indexBufferMemory, nullptr);
+
+    vkDestroyBuffer(device, vertexBuffer, nullptr);
+    vkFreeMemory(device, vertexBufferMemory, nullptr);
+
+    for (size_t i = 0; i < swapChainImages.size(); i++) {
+        vkDestroyBuffer(device, uniformBuffers[i], nullptr);
+        vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+    }
+
+    vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+}
+
 void VulkanApp::prepare()
 {
     VulkanBase::initVulkan();
@@ -287,13 +315,13 @@ void VulkanApp::drawFrame()
     uint32_t imageIndex = 0;
 
     if (!prepareFrame(&imageIndex)) {
-        buildCommandBuffers();
+        handleWindowResize();
     }
 
     updateUniformBuffer(imageIndex);
 
     if(!submitFrame(imageIndex)) {
-        buildCommandBuffers();
+        handleWindowResize();
     }
 }
 
@@ -552,4 +580,9 @@ void VulkanApp::createTextureSampler()
     if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
         throw std::runtime_error("failed to create texture sampler!");
     }
+}
+
+void VulkanApp::handleWindowResize()
+{
+    buildCommandBuffers();
 }

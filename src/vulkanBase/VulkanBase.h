@@ -73,10 +73,10 @@ public:
     std::vector<VkImage> swapChainImages;
     VkFormat swapChainImageFormat;
     std::vector<VkImageView> swapChainImageViews;
-    VkDescriptorSetLayout descriptorSetLayout;
     size_t currentFrame = 0;
 
     VulkanBase(uint32_t width, uint32_t height, const std::string, bool enableValidationLayers);
+    ~VulkanBase();
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
     VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
@@ -107,9 +107,7 @@ protected:
     VkImageView createImageView(VkImage image, VkFormat format);
     VkViewport createViewport(float width, float height, float minDepth, float maxDepth);
     VkRect2D createRect2D(int32_t width, int32_t height, int32_t offsetX, int32_t offsetY);
-
-    virtual void initVulkan();
-    void cleanup();
+    void initVulkan();
 
 private:
     void initWindow(uint32_t width, uint32_t height, const std::string title);
