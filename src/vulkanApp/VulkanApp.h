@@ -72,6 +72,7 @@ struct OffscreenPass {
     VkRenderPass renderPass;
     VkSampler sampler;
     VkDescriptorImageInfo descriptor;
+    VkPipeline pipeline;
 };
 
 const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
@@ -135,6 +136,7 @@ private:
     void createOffscreenImage();
     void createOffscreenImageView();
     void createOffscreenFramebuffer();
+    void createOffscreenPipeline();
 };
 
 #endif
