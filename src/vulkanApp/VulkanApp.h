@@ -132,6 +132,7 @@ private:
     void prepareImgui();
     void buildCommandBuffers();
     void recordCommandBuffer(uint32_t index);
+    void drawImguiObjects();
 
     // offsscreen
     void prepareOffscreen();

@@ -162,16 +162,7 @@ void VulkanApp::recordCommandBuffer(uint32_t index)
 
 void VulkanApp::buildCommandBuffers()
 {
-    imgui.get()->newFrame();
-    bool show_demo_window = true;
-    bool show_another_window = true;
-    ImGui::ShowDemoWindow(&show_demo_window);
-
-    ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-    ImGui::Image(myTextureId, ImVec2(200.0f, 100.0f));
-    ImGui::End();
-
-    imgui.get()->endNewFrame();
+    drawImguiObjects();
 
     for (size_t i = 0; i < commandBuffers.size(); i++) {
         recordCommandBuffer(i);
@@ -375,16 +366,7 @@ void VulkanApp::drawFrame()
 
     updateUniformBuffer(imageIndex);
 
-    imgui.get()->newFrame();
-    bool show_demo_window = true;
-    bool show_another_window = true;
-    ImGui::ShowDemoWindow(&show_demo_window);
-
-    ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-    ImGui::Image(myTextureId, ImVec2(200.0f, 100.0f));
-    ImGui::End();
-
-    imgui.get()->endNewFrame();
+    drawImguiObjects();
 
     recordCommandBuffer(imageIndex);
 
@@ -899,4 +881,18 @@ void VulkanApp::createOffscreenPipeline()
 
     vkDestroyShaderModule(device, fragShaderModule, nullptr);
     vkDestroyShaderModule(device, vertShaderModule, nullptr);
+}
+
+void VulkanApp::drawImguiObjects()
+{
+    imgui.get()->newFrame();
+    bool show_demo_window = true;
+    bool show_another_window = true;
+    ImGui::ShowDemoWindow(&show_demo_window);
+
+    ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+    ImGui::Image(myTextureId, ImVec2(200.0f, 100.0f));
+    ImGui::End();
+
+    imgui.get()->endNewFrame();
 }
