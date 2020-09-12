@@ -129,8 +129,7 @@ private:
     void createDescriptorPool();
     void handleWindowResize();
     void prepareImgui();
-    void buildCommandBuffers();
-    void recordCommandBuffer(uint32_t index);
+    void buildCommandBuffer(uint32_t index);
     void drawImguiObjects();
 
     // offsscreen

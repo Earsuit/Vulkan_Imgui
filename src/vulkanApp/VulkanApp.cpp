@@ -81,10 +81,9 @@ void VulkanApp::prepare()
     createDescriptorSets();
     prepareImgui();
     prepareOffscreen();
-    buildCommandBuffers();
 }
 
-void VulkanApp::recordCommandBuffer(uint32_t index)
+void VulkanApp::buildCommandBuffer(uint32_t index)
 {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -155,15 +154,6 @@ void VulkanApp::recordCommandBuffer(uint32_t index)
         }
 }
 
-void VulkanApp::buildCommandBuffers()
-{
-    drawImguiObjects();
-
-    for (size_t i = 0; i < commandBuffers.size(); i++) {
-        recordCommandBuffer(i);
-    }
-}
-
 // a thin wrapper around the shader bytecode
 VkShaderModule VulkanApp::createShaderModule(const std::vector<char>& code)
 {
@@ -207,7 +197,7 @@ void VulkanApp::drawFrame()
 
     drawImguiObjects();
 
-    recordCommandBuffer(imageIndex);
+    buildCommandBuffer(imageIndex);
 
     if(!submitFrame(imageIndex)) {
         handleWindowResize();
@@ -464,7 +454,7 @@ void VulkanApp::createTextureSampler()
 
 void VulkanApp::handleWindowResize()
 {
-    buildCommandBuffers();
+    // For future uses
 }
 
 void VulkanApp::prepareImgui()
