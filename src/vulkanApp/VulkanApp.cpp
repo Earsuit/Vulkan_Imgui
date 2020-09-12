@@ -80,26 +80,14 @@ void VulkanApp::prepare()
     buildCommandBuffers();
 }
 
-void VulkanApp::buildCommandBuffers()
+void VulkanApp::recordCommandBuffer(uint32_t index)
 {
-    imgui.get()->newFrame();
-    bool show_demo_window = true;
-    bool show_another_window = true;
-    ImGui::ShowDemoWindow(&show_demo_window);
-
-    ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-    ImGui::Image(ImGui_ImplVulkan_AddTexture(textureSampler, offscreenPass.color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), ImVec2(200.0f, 100.0f));
-    ImGui::End();
-
-    imgui.get()->endNewFrame();
-
-    for (size_t i = 0; i < commandBuffers.size(); i++) {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = 0;                  // Optional
         beginInfo.pInheritanceInfo = nullptr; // Optional
 
-        if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
+        if (vkBeginCommandBuffer(commandBuffers[index], &beginInfo) != VK_SUCCESS) {
             throw std::runtime_error("failed to begin recording command buffer!");
         }
 
@@ -116,34 +104,34 @@ void VulkanApp::buildCommandBuffers()
             renderPassInfo.clearValueCount = 1;
             renderPassInfo.pClearValues = &clearColor;
 
-            vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+            vkCmdBeginRenderPass(commandBuffers[index], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
             VkViewport viewport = createViewport((float)offscreenPass.width, (float)offscreenPass.height, 0.0f, 1.0f);
-            vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
+            vkCmdSetViewport(commandBuffers[index], 0, 1, &viewport);
 
             VkRect2D scissor = createRect2D(offscreenPass.width, offscreenPass.height, 0, 0);
-            vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
+            vkCmdSetScissor(commandBuffers[index], 0, 1, &scissor);
 
-            vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, offscreenPass.pipeline);
+            vkCmdBindPipeline(commandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, offscreenPass.pipeline);
 
             VkBuffer vertexBuffers[] = {vertexBuffer};
             VkDeviceSize offsets[] = {0};
-            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+            vkCmdBindVertexBuffers(commandBuffers[index], 0, 1, vertexBuffers, offsets);
 
-            vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+            vkCmdBindIndexBuffer(commandBuffers[index], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
+            vkCmdBindDescriptorSets(commandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[index], 0, nullptr);
 
-            vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+            vkCmdDrawIndexed(commandBuffers[index], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
-            vkCmdEndRenderPass(commandBuffers[i]);
+            vkCmdEndRenderPass(commandBuffers[index]);
         }
 
         {
             VkRenderPassBeginInfo renderPassInfo{};
             renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
             renderPassInfo.renderPass = renderPass;
-            renderPassInfo.framebuffer = swapChainFramebuffers[i];
+            renderPassInfo.framebuffer = swapChainFramebuffers[index];
             renderPassInfo.renderArea.offset = {0, 0};
             renderPassInfo.renderArea.extent = swapChainExtent;
 
@@ -151,35 +139,52 @@ void VulkanApp::buildCommandBuffers()
             renderPassInfo.clearValueCount = 1;
             renderPassInfo.pClearValues = &clearColor;
 
-            vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+            vkCmdBeginRenderPass(commandBuffers[index], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
             VkViewport viewport = createViewport((float)swapChainExtent.width, (float)swapChainExtent.height, 0.0f, 1.0f);
-            vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
+            vkCmdSetViewport(commandBuffers[index], 0, 1, &viewport);
 
             VkRect2D scissor = createRect2D(swapChainExtent.width, swapChainExtent.height, 0, 0);
-            vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
+            vkCmdSetScissor(commandBuffers[index], 0, 1, &scissor);
 
-            vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+            vkCmdBindPipeline(commandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
             VkBuffer vertexBuffers[] = {vertexBuffer};
             VkDeviceSize offsets[] = {0};
-            vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+            vkCmdBindVertexBuffers(commandBuffers[index], 0, 1, vertexBuffers, offsets);
 
-            vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+            vkCmdBindIndexBuffer(commandBuffers[index], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
+            vkCmdBindDescriptorSets(commandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[index], 0, nullptr);
 
-            vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+            vkCmdDrawIndexed(commandBuffers[index], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
-            imgui.get()->drawFrame(commandBuffers[i]);
+            imgui.get()->drawFrame(commandBuffers[index]);
 
-            vkCmdEndRenderPass(commandBuffers[i]);
+            vkCmdEndRenderPass(commandBuffers[index]);
         }
         
 
-        if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
+        if (vkEndCommandBuffer(commandBuffers[index]) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer!");
         }
+}
+
+void VulkanApp::buildCommandBuffers()
+{
+    imgui.get()->newFrame();
+    bool show_demo_window = true;
+    bool show_another_window = true;
+    ImGui::ShowDemoWindow(&show_demo_window);
+
+    ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+    ImGui::Image(myTextureId, ImVec2(200.0f, 100.0f));
+    ImGui::End();
+
+    imgui.get()->endNewFrame();
+
+    for (size_t i = 0; i < commandBuffers.size(); i++) {
+        recordCommandBuffer(i);
     }
 }
 
@@ -359,6 +364,8 @@ VkShaderModule VulkanApp::createShaderModule(const std::vector<char>& code)
 
 void VulkanApp::run()
 {
+    myTextureId = ImGui_ImplVulkan_AddTexture(textureSampler, offscreenPass.color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
     while (!glfwWindowShouldClose(pWindow.get())) {
         glfwPollEvents();
         drawFrame();
@@ -378,7 +385,18 @@ void VulkanApp::drawFrame()
 
     updateUniformBuffer(imageIndex);
 
-    buildCommandBuffers();
+    imgui.get()->newFrame();
+    bool show_demo_window = true;
+    bool show_another_window = true;
+    ImGui::ShowDemoWindow(&show_demo_window);
+
+    ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+    ImGui::Image(myTextureId, ImVec2(200.0f, 100.0f));
+    ImGui::End();
+
+    imgui.get()->endNewFrame();
+
+    recordCommandBuffer(imageIndex);
 
     if(!submitFrame(imageIndex)) {
         handleWindowResize();

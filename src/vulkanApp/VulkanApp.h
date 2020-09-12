@@ -93,7 +93,7 @@ public:
     ~VulkanApp();
     void run();
     void prepare();
-    void buildCommandBuffers();
+    
 
 private:
     VkDescriptorSetLayout descriptorSetLayout;
@@ -112,6 +112,7 @@ private:
     VkImageView textureImageView;
     VkSampler textureSampler;
     std::unique_ptr<MyImgui> imgui;
+    ImTextureID myTextureId;
     struct OffscreenPass offscreenPass;
 
     void createGraphicsPipeline();
@@ -129,6 +130,8 @@ private:
     void createDescriptorPool();
     void handleWindowResize();
     void prepareImgui();
+    void buildCommandBuffers();
+    void recordCommandBuffer(uint32_t index);
 
     // offsscreen
     void prepareOffscreen();
