@@ -15,6 +15,7 @@
 class MyImgui {
 public:
     MyImgui(VulkanBase* base);
+    ~MyImgui();
     void init();
     void initVulkanResource(VkRenderPass renderPass);
     void newFrame();

@@ -19,6 +19,15 @@ MyImgui::MyImgui(VulkanBase* base)
     ImGui::CreateContext();
 }
 
+MyImgui::~MyImgui()
+{
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    vkDestroyDescriptorPool(vulkan->device, descriptorPool, vulkan->allocator);
+}
+
 void MyImgui::createDescriptorPool()
 {
     VkResult err = VK_SUCCESS;
