@@ -98,7 +98,6 @@ private:
     void createGraphicsPipeline();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void drawFrame();
-    void recreateSwapChain();
     void createVertexBuffer();
     void createIndexBuffer();
     void createDescriptorSetLayout();
