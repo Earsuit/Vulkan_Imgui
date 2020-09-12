@@ -103,10 +103,10 @@ private:
     VkDeviceMemory vertexBufferMemory;
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
-    std::vector<VkBuffer> uniformBuffers;
-    std::vector<VkDeviceMemory> uniformBuffersMemory;
+    VkBuffer uniformBuffers;
+    VkDeviceMemory uniformBuffersMemory;
     VkDescriptorPool descriptorPool;
-    std::vector<VkDescriptorSet> descriptorSets;
+    VkDescriptorSet descriptorSets;
     VkImage textureImage;
     VkDeviceMemory textureImageMemory;
     VkImageView textureImageView;
@@ -122,7 +122,7 @@ private:
     void createIndexBuffer();
     void createDescriptorSetLayout();
     void createUniformBuffers();
-    void updateUniformBuffer(uint32_t currentImage);
+    void updateUniformBuffer();
     void createDescriptorSets();
     void createTextureImage();
     void createTextureImageView();
