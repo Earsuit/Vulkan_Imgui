@@ -1,8 +1,8 @@
 #ifndef _VULKAN_APP_H_
 #define _VULKAN_APP_H_
 
-#include "VulkanBase.h"
 #include "MyImgui.h"
+#include "VulkanBase.h"
 
 #include <array>
 #include <cstdlib>
@@ -11,6 +11,8 @@
 #include <optional>
 #include <vector>
 #include <vulkan/vulkan.h>
+
+#define FB_DIM 512
 
 struct UniformBufferObject {
     glm::mat4 model;
@@ -57,6 +59,22 @@ struct Vertex {
     }
 };
 
+struct FrameBufferAttachment {
+    VkImage image;
+    VkDeviceMemory mem;
+    VkImageView view;
+};
+
+struct OffscreenPass {
+    int32_t width, height;
+    VkFramebuffer frameBuffer;
+    FrameBufferAttachment color, depth;
+    VkRenderPass renderPass;
+    VkSampler sampler;
+    VkDescriptorImageInfo descriptor;
+    VkPipeline pipeline;
+};
+
 const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 
 const std::vector<Vertex> vertices = {
@@ -75,7 +93,7 @@ public:
     ~VulkanApp();
     void run();
     void prepare();
-    void buildCommandBuffers();
+
 
 private:
     VkDescriptorSetLayout descriptorSetLayout;
@@ -85,24 +103,25 @@ private:
     VkDeviceMemory vertexBufferMemory;
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
-    std::vector<VkBuffer> uniformBuffers;
-    std::vector<VkDeviceMemory> uniformBuffersMemory;
+    VkBuffer uniformBuffers;
+    VkDeviceMemory uniformBuffersMemory;
     VkDescriptorPool descriptorPool;
-    std::vector<VkDescriptorSet> descriptorSets;
+    VkDescriptorSet descriptorSets;
     VkImage textureImage;
     VkDeviceMemory textureImageMemory;
     VkImageView textureImageView;
     VkSampler textureSampler;
     std::unique_ptr<MyImgui> imgui;
+    ImTextureID myTextureId;
+    struct OffscreenPass offscreenPass;
 
-    void createGraphicsPipeline();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void drawFrame();
     void createVertexBuffer();
     void createIndexBuffer();
     void createDescriptorSetLayout();
     void createUniformBuffers();
-    void updateUniformBuffer(uint32_t currentImage);
+    void updateUniformBuffer();
     void createDescriptorSets();
     void createTextureImage();
     void createTextureImageView();
@@ -110,6 +129,16 @@ private:
     void createDescriptorPool();
     void handleWindowResize();
     void prepareImgui();
+    void buildCommandBuffer(uint32_t index);
+    void drawImguiObjects();
+
+    // offsscreen
+    void prepareOffscreen();
+    void createOffscreensRenderPass();
+    void createOffscreenImage();
+    void createOffscreenImageView();
+    void createOffscreenFramebuffer();
+    void createOffscreenPipeline();
 };
 
 #endif
