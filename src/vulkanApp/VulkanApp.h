@@ -115,7 +115,6 @@ private:
     ImTextureID myTextureId;
     struct OffscreenPass offscreenPass;
 
-    void createGraphicsPipeline();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void drawFrame();
     void createVertexBuffer();
