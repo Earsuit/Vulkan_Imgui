@@ -84,11 +84,9 @@ public:
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     VkCommandBuffer beginSingleTimeCommands();
     void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-    std::optional<uint32_t> prepareFrame();
-    void submitFrame(uint32_t imageIndex);
+    bool prepareFrame(uint32_t* imageIndex);
+    bool submitFrame(uint32_t imageIndex);
     void recreateSwapChain();
-
-    virtual void prepare();
 
 protected:
     void createBuffer(VkDeviceSize size,

@@ -93,7 +93,6 @@ private:
     VkImageView textureImageView;
     VkSampler textureSampler;
 
-    void initVulkan();
     void createGraphicsPipeline();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void drawFrame();

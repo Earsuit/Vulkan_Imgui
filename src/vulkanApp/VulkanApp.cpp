@@ -31,11 +31,6 @@ static std::vector<char> readFile(const std::string& filename)
 
 void VulkanApp::prepare()
 {
-    initVulkan();
-}
-
-void VulkanApp::initVulkan()
-{
     VulkanBase::initVulkan();
 
     createDescriptorSetLayout();
@@ -289,17 +284,17 @@ void VulkanApp::run()
 void VulkanApp::drawFrame()
 {
     VkResult result = VK_SUCCESS;
-    std::optional<uint32_t> imageIndex = prepareFrame();
+    uint32_t imageIndex = 0;
 
-    if (!imageIndex.has_value()) {
-        return;
+    if (!prepareFrame(&imageIndex)) {
+        buildCommandBuffers();
     }
 
-    buildCommandBuffers();
+    updateUniformBuffer(imageIndex);
 
-    updateUniformBuffer(imageIndex.value());
-
-    submitFrame(imageIndex.value());
+    if(!submitFrame(imageIndex)) {
+        buildCommandBuffers();
+    }
 }
 
 void VulkanApp::createVertexBuffer()

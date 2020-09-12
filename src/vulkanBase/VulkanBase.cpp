@@ -44,11 +44,6 @@ VulkanBase::VulkanBase(uint32_t width, uint32_t height, const std::string title,
     initWindow(width, height, title);
 }
 
-void VulkanBase::prepare()
-{
-    initVulkan();
-}
-
 void VulkanBase::createSyncObjects()
 {
     imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
@@ -73,37 +68,34 @@ void VulkanBase::createSyncObjects()
     }
 }
 
-std::optional<uint32_t> VulkanBase::prepareFrame()
+bool VulkanBase::prepareFrame(uint32_t* ImageIndex)
 {
-    uint32_t imageIndex;
-    std::optional<uint32_t> ret;
     VkResult result = VK_SUCCESS;
 
     vkWaitForFences(device, 1, &inFlightFences[currentFrame], VK_TRUE, UINT64_MAX);
 
-    result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+    result = vkAcquireNextImageKHR(device, swapChain, UINT64_MAX, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, ImageIndex);
 
     if (result == VK_ERROR_OUT_OF_DATE_KHR) {
         recreateSwapChain();
-        return ret;
+        return false;
     }
     else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
         throw std::runtime_error("failed to acquire swap chain image!");
     }
 
     // Check if a previous frame is using this image (i.e. there is its fence to wait on)
-    if (imagesInFlight[imageIndex] != VK_NULL_HANDLE) {
-        vkWaitForFences(device, 1, &imagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+    if (imagesInFlight[*ImageIndex] != VK_NULL_HANDLE) {
+        vkWaitForFences(device, 1, &imagesInFlight[*ImageIndex], VK_TRUE, UINT64_MAX);
     }
 
     // Mark the image as now being in use by this frame
-    imagesInFlight[imageIndex] = inFlightFences[currentFrame];
+    imagesInFlight[*ImageIndex] = inFlightFences[currentFrame];
 
-    ret = imageIndex;
-    return ret;
+    return true;
 }
 
-void VulkanBase::submitFrame(uint32_t imageIndex)
+bool VulkanBase::submitFrame(uint32_t imageIndex)
 {
     VkResult result = VK_SUCCESS;
     VkPresentInfoKHR presentInfo{};
@@ -142,12 +134,15 @@ void VulkanBase::submitFrame(uint32_t imageIndex)
         framebufferResized) {
         framebufferResized = false;
         recreateSwapChain();
+        return false;
     }
     else if (result != VK_SUCCESS) {
         throw std::runtime_error("failed to present swap chain image!");
     }
 
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+    return true;
 }
 
 void VulkanBase::initWindow(uint32_t width, uint32_t height, const std::string title)
