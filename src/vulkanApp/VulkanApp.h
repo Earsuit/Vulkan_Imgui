@@ -12,6 +12,8 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
+#define FB_DIM 512
+
 struct UniformBufferObject {
     glm::mat4 model;
     glm::mat4 view;
@@ -57,6 +59,21 @@ struct Vertex {
     }
 };
 
+struct FrameBufferAttachment {
+    VkImage image;
+    VkDeviceMemory mem;
+    VkImageView view;
+};
+
+struct OffscreenPass {
+    int32_t width, height;
+    VkFramebuffer frameBuffer;
+    FrameBufferAttachment color, depth;
+    VkRenderPass renderPass;
+    VkSampler sampler;
+    VkDescriptorImageInfo descriptor;
+};
+
 const std::vector<uint16_t> indices = {0, 1, 2, 2, 3, 0};
 
 const std::vector<Vertex> vertices = {
@@ -94,6 +111,7 @@ private:
     VkImageView textureImageView;
     VkSampler textureSampler;
     std::unique_ptr<MyImgui> imgui;
+    struct OffscreenPass offscreenPass;
 
     void createGraphicsPipeline();
     VkShaderModule createShaderModule(const std::vector<char>& code);
@@ -110,6 +128,13 @@ private:
     void createDescriptorPool();
     void handleWindowResize();
     void prepareImgui();
+
+    // offsscreen
+    void prepareOffscreen();
+    void createOffscreensRenderPass();
+    void createOffscreenImage();
+    void createOffscreenImageView();
+    void createOffscreenFramebuffer();
 };
 
 #endif
