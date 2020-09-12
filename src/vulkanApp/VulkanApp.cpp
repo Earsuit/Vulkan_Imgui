@@ -150,30 +150,11 @@ void VulkanApp::recordCommandBuffer(uint32_t index)
 
             vkCmdBeginRenderPass(commandBuffers[index], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            VkViewport viewport = createViewport((float)swapChainExtent.width, (float)swapChainExtent.height, 0.0f, 1.0f);
-            vkCmdSetViewport(commandBuffers[index], 0, 1, &viewport);
-
-            VkRect2D scissor = createRect2D(swapChainExtent.width, swapChainExtent.height, 0, 0);
-            vkCmdSetScissor(commandBuffers[index], 0, 1, &scissor);
-
-            vkCmdBindPipeline(commandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
-            VkBuffer vertexBuffers[] = {vertexBuffer};
-            VkDeviceSize offsets[] = {0};
-            vkCmdBindVertexBuffers(commandBuffers[index], 0, 1, vertexBuffers, offsets);
-
-            vkCmdBindIndexBuffer(commandBuffers[index], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-
-            vkCmdBindDescriptorSets(commandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[index], 0, nullptr);
-
-            vkCmdDrawIndexed(commandBuffers[index], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-
             imgui.get()->drawFrame(commandBuffers[index]);
 
             vkCmdEndRenderPass(commandBuffers[index]);
-        }
+        }    
         
-
         if (vkEndCommandBuffer(commandBuffers[index]) != VK_SUCCESS) {
             throw std::runtime_error("failed to record command buffer!");
         }
