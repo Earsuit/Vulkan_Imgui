@@ -87,9 +87,9 @@ void VulkanApp::buildCommandBuffers()
     bool show_another_window = true;
     ImGui::ShowDemoWindow(&show_demo_window);
 
-    ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-    ImGui::Image(ImGui_ImplVulkan_AddTexture(textureSampler, offscreenPass.color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), ImVec2(200.0f, 100.0f));
-    ImGui::End();
+    // ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+    // ImGui::Image(ImGui_ImplVulkan_AddTexture(textureSampler, offscreenPass.color.view, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL), ImVec2(200.0f, 100.0f));
+    // ImGui::End();
 
     imgui.get()->endNewFrame();
 
@@ -383,6 +383,7 @@ void VulkanApp::drawFrame()
     if(!submitFrame(imageIndex)) {
         handleWindowResize();
     }
+    // throw std::runtime_error("failed to create shader module!");
 }
 
 void VulkanApp::createVertexBuffer()
