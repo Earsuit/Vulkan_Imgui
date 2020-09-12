@@ -85,73 +85,73 @@ void VulkanApp::prepare()
 
 void VulkanApp::buildCommandBuffer(uint32_t index)
 {
-        VkCommandBufferBeginInfo beginInfo{};
-        beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        beginInfo.flags = 0;                  // Optional
-        beginInfo.pInheritanceInfo = nullptr; // Optional
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = 0;                  // Optional
+    beginInfo.pInheritanceInfo = nullptr; // Optional
 
-        if (vkBeginCommandBuffer(commandBuffers[index], &beginInfo) != VK_SUCCESS) {
-            throw std::runtime_error("failed to begin recording command buffer!");
-        }
+    if (vkBeginCommandBuffer(commandBuffers[index], &beginInfo) != VK_SUCCESS) {
+        throw std::runtime_error("failed to begin recording command buffer!");
+    }
 
-        {
-            VkRenderPassBeginInfo renderPassInfo{};
-            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderPassInfo.renderPass = offscreenPass.renderPass;
-            renderPassInfo.framebuffer = offscreenPass.frameBuffer;
-            renderPassInfo.renderArea.offset = {0, 0};
-            renderPassInfo.renderArea.extent.width = offscreenPass.width;
-			renderPassInfo.renderArea.extent.height = offscreenPass.height;
+    {
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = offscreenPass.renderPass;
+        renderPassInfo.framebuffer = offscreenPass.frameBuffer;
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent.width = offscreenPass.width;
+        renderPassInfo.renderArea.extent.height = offscreenPass.height;
 
-            VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
-            renderPassInfo.clearValueCount = 1;
-            renderPassInfo.pClearValues = &clearColor;
+        VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+        renderPassInfo.clearValueCount = 1;
+        renderPassInfo.pClearValues = &clearColor;
 
-            vkCmdBeginRenderPass(commandBuffers[index], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(commandBuffers[index], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            VkViewport viewport = createViewport((float)offscreenPass.width, (float)offscreenPass.height, 0.0f, 1.0f);
-            vkCmdSetViewport(commandBuffers[index], 0, 1, &viewport);
+        VkViewport viewport = createViewport((float)offscreenPass.width, (float)offscreenPass.height, 0.0f, 1.0f);
+        vkCmdSetViewport(commandBuffers[index], 0, 1, &viewport);
 
-            VkRect2D scissor = createRect2D(offscreenPass.width, offscreenPass.height, 0, 0);
-            vkCmdSetScissor(commandBuffers[index], 0, 1, &scissor);
+        VkRect2D scissor = createRect2D(offscreenPass.width, offscreenPass.height, 0, 0);
+        vkCmdSetScissor(commandBuffers[index], 0, 1, &scissor);
 
-            vkCmdBindPipeline(commandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, offscreenPass.pipeline);
+        vkCmdBindPipeline(commandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, offscreenPass.pipeline);
 
-            VkBuffer vertexBuffers[] = {vertexBuffer};
-            VkDeviceSize offsets[] = {0};
-            vkCmdBindVertexBuffers(commandBuffers[index], 0, 1, vertexBuffers, offsets);
+        VkBuffer vertexBuffers[] = {vertexBuffer};
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(commandBuffers[index], 0, 1, vertexBuffers, offsets);
 
-            vkCmdBindIndexBuffer(commandBuffers[index], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindIndexBuffer(commandBuffers[index], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-            vkCmdBindDescriptorSets(commandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets, 0, nullptr);
+        vkCmdBindDescriptorSets(commandBuffers[index], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets, 0, nullptr);
 
-            vkCmdDrawIndexed(commandBuffers[index], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[index], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
-            vkCmdEndRenderPass(commandBuffers[index]);
-        }
+        vkCmdEndRenderPass(commandBuffers[index]);
+    }
 
-        {
-            VkRenderPassBeginInfo renderPassInfo{};
-            renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderPassInfo.renderPass = renderPass;
-            renderPassInfo.framebuffer = swapChainFramebuffers[index];
-            renderPassInfo.renderArea.offset = {0, 0};
-            renderPassInfo.renderArea.extent = swapChainExtent;
+    {
+        VkRenderPassBeginInfo renderPassInfo{};
+        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        renderPassInfo.renderPass = renderPass;
+        renderPassInfo.framebuffer = swapChainFramebuffers[index];
+        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.extent = swapChainExtent;
 
-            VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
-            renderPassInfo.clearValueCount = 1;
-            renderPassInfo.pClearValues = &clearColor;
+        VkClearValue clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
+        renderPassInfo.clearValueCount = 1;
+        renderPassInfo.pClearValues = &clearColor;
 
-            vkCmdBeginRenderPass(commandBuffers[index], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(commandBuffers[index], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-            imgui.get()->drawFrame(commandBuffers[index]);
+        imgui.get()->drawFrame(commandBuffers[index]);
 
-            vkCmdEndRenderPass(commandBuffers[index]);
-        }    
-        
-        if (vkEndCommandBuffer(commandBuffers[index]) != VK_SUCCESS) {
-            throw std::runtime_error("failed to record command buffer!");
-        }
+        vkCmdEndRenderPass(commandBuffers[index]);
+    }
+
+    if (vkEndCommandBuffer(commandBuffers[index]) != VK_SUCCESS) {
+        throw std::runtime_error("failed to record command buffer!");
+    }
 }
 
 // a thin wrapper around the shader bytecode
@@ -199,7 +199,7 @@ void VulkanApp::drawFrame()
 
     buildCommandBuffer(imageIndex);
 
-    if(!submitFrame(imageIndex)) {
+    if (!submitFrame(imageIndex)) {
         handleWindowResize();
     }
 }
@@ -295,10 +295,10 @@ void VulkanApp::createUniformBuffers()
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
     createBuffer(bufferSize,
-                    VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                    uniformBuffers,
-                    uniformBuffersMemory);
+                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 uniformBuffers,
+                 uniformBuffersMemory);
 }
 
 void VulkanApp::updateUniformBuffer()
@@ -529,7 +529,7 @@ void VulkanApp::createOffscreensRenderPass()
 void VulkanApp::createOffscreenImage()
 {
     offscreenPass.width = FB_DIM;
-	offscreenPass.height = FB_DIM;
+    offscreenPass.height = FB_DIM;
 
     createImage(FB_DIM, FB_DIM,
                 VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
@@ -547,8 +547,8 @@ void VulkanApp::createOffscreenFramebuffer()
     VkImageView attachments[1];
     attachments[0] = offscreenPass.color.view;
 
-    VkFramebufferCreateInfo fbufCreateInfo {};
-	fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    VkFramebufferCreateInfo fbufCreateInfo{};
+    fbufCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     fbufCreateInfo.renderPass = offscreenPass.renderPass;
     fbufCreateInfo.attachmentCount = 1;
     fbufCreateInfo.pAttachments = attachments;
@@ -672,8 +672,7 @@ void VulkanApp::createOffscreenPipeline()
 
     std::vector<VkDynamicState> pDynamicStates = {
         VK_DYNAMIC_STATE_VIEWPORT,
-        VK_DYNAMIC_STATE_SCISSOR
-    };
+        VK_DYNAMIC_STATE_SCISSOR};
 
     VkPipelineDynamicStateCreateInfo pipelineDynamicStateCreateInfo{};
     pipelineDynamicStateCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
@@ -713,7 +712,7 @@ void VulkanApp::drawImguiObjects()
     bool show_another_window = true;
     ImGui::ShowDemoWindow(&show_demo_window);
 
-    ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+    ImGui::Begin("Another Window", &show_another_window); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
     ImGui::Image(myTextureId, ImGui::GetWindowSize());
     ImGui::End();
 
