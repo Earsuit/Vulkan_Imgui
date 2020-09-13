@@ -114,6 +114,8 @@ private:
     std::unique_ptr<MyImgui> imgui;
     ImTextureID myTextureId;
     struct OffscreenPass offscreenPass;
+    bool show_demo_window = true;
+    bool show_another_window = true;
 
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void drawFrame();

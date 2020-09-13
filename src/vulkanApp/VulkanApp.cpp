@@ -708,13 +708,15 @@ void VulkanApp::createOffscreenPipeline()
 void VulkanApp::drawImguiObjects()
 {
     imgui.get()->newFrame();
-    bool show_demo_window = true;
-    bool show_another_window = true;
-    ImGui::ShowDemoWindow(&show_demo_window);
+    if (show_demo_window) {
+        ImGui::ShowDemoWindow(&show_demo_window);
+    }
 
-    ImGui::Begin("Another Window", &show_another_window); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-    ImGui::Image(myTextureId, ImGui::GetWindowSize());
-    ImGui::End();
+    if (show_another_window) {
+        ImGui::Begin("Render to texture", &show_another_window); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+        ImGui::Image(myTextureId, ImGui::GetWindowSize());
+        ImGui::End();
+    }
 
     imgui.get()->endNewFrame();
 }
