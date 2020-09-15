@@ -1,5 +1,5 @@
-#ifndef _HEELO_TRIANGLE_APPLICATION_H_
-#define _HEELO_TRIANGLE_APPLICATION_H_
+#ifndef _VULKAN_BASE_H_
+#define _VULKAN_BASE_H_
 
 #include <vulkan/vulkan.h>
 
@@ -86,8 +86,7 @@ public:
     void endSingleTimeCommands(VkCommandBuffer commandBuffer);
     bool prepareFrame(uint32_t* imageIndex);
     bool submitFrame(uint32_t imageIndex);
-    void recreateSwapChain();
-
+    
 protected:
     void createBuffer(VkDeviceSize size,
                       VkBufferUsageFlags usage,
@@ -134,6 +133,7 @@ private:
     void createFramebuffers();
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
     void createSyncObjects();
+    void recreateSwapChain();
 };
 
 #endif
