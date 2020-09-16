@@ -69,7 +69,7 @@ public:
     std::vector<VkFence> imagesInFlight;
     bool enableValidationLayers;
     VkDebugUtilsMessengerEXT debugMessenger;
-    VkSwapchainKHR swapChain;
+    VkSwapchainKHR swapChain = VK_NULL_HANDLE;
     std::vector<VkImage> swapChainImages;
     VkFormat swapChainImageFormat;
     std::vector<VkImageView> swapChainImageViews;
