@@ -193,9 +193,9 @@ void VulkanApp::drawFrame()
         handleWindowResize();
     }
 
-    updateUniformBuffer();
-
     drawImguiObjects();
+
+    updateUniformBuffer();
 
     buildCommandBuffer(imageIndex);
 
@@ -314,7 +314,7 @@ void VulkanApp::updateUniformBuffer()
 
     ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
+    ubo.proj = glm::perspective(glm::radians(45.0f), textureWindowSize.x / textureWindowSize.y, 0.1f, 10.0f);
     ubo.proj[1][1] *= -1;
     
     vkMapMemory(device, uniformBuffersMemory, 0, sizeof(ubo), 0, &data);
@@ -708,7 +708,8 @@ void VulkanApp::drawImguiObjects()
 
     if (show_another_window) {
         ImGui::Begin("Render to texture", &show_another_window); // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-        ImGui::Image(myTextureId, ImGui::GetWindowSize());
+        textureWindowSize = ImGui::GetWindowSize();
+        ImGui::Image(myTextureId, textureWindowSize);
         ImGui::End();
     }
 

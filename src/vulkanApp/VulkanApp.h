@@ -117,6 +117,7 @@ private:
     struct OffscreenPass offscreenPass;
     bool show_demo_window = true;
     bool show_another_window = true;
+    ImVec2 textureWindowSize;
 
     VkShaderModule createShaderModule(const std::vector<char>& code);
     void drawFrame();
