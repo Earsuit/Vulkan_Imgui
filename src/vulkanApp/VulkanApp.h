@@ -12,7 +12,8 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 
-#define FB_DIM 512
+constexpr int32_t WIDTH = 512;
+constexpr int32_t HEIGHT = 512;
 
 struct UniformBufferObject {
     glm::mat4 model;
