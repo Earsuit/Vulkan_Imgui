@@ -123,19 +123,24 @@ bool VulkanBase::submitFrame(uint32_t imageIndex)
     VkResult result = VK_SUCCESS;
     VkPresentInfoKHR presentInfo{};
     VkSubmitInfo submitInfo{};
-    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
-    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
-    VkSwapchainKHR swapChains[] = {swapChain};
+    std::vector<VkSemaphore> waitSemaphores;
+    std::vector<VkPipelineStageFlags> waitStages;
+    std::vector<VkSemaphore> signalSemaphores;
+    std::vector<VkSwapchainKHR> swapChains;
+
+    waitSemaphores.push_back(imageAvailableSemaphores[currentFrame]);
+    waitStages.push_back(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+    signalSemaphores.push_back(renderFinishedSemaphores[currentFrame]);
+    swapChains.push_back(swapChain);
 
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
-    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.waitSemaphoreCount = waitSemaphores.size();
+    submitInfo.pWaitSemaphores = waitSemaphores.data();
+    submitInfo.pWaitDstStageMask = waitStages.data();
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
+    submitInfo.signalSemaphoreCount = signalSemaphores.size();
+    submitInfo.pSignalSemaphores = signalSemaphores.data();
 
     vkResetFences(device, 1, &inFlightFences[currentFrame]);
 
@@ -144,10 +149,10 @@ bool VulkanBase::submitFrame(uint32_t imageIndex)
     }
 
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = signalSemaphores;
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = swapChains;
+    presentInfo.waitSemaphoreCount = signalSemaphores.size();
+    presentInfo.pWaitSemaphores = signalSemaphores.data();
+    presentInfo.swapchainCount = swapChains.size();
+    presentInfo.pSwapchains = swapChains.data();
     presentInfo.pImageIndices = &imageIndex;
     presentInfo.pResults = nullptr; // Optional
     result = vkQueuePresentKHR(presentQueue, &presentInfo);
@@ -204,7 +209,7 @@ void VulkanBase::createInstance()
 {
     VkApplicationInfo appInfo{};
     VkInstanceCreateInfo createInfo{};
-    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 
     if (enableValidationLayers && !checkValidationLayerSupport()) {
         throw std::runtime_error("validation layers requested, but not available!");
@@ -359,7 +364,7 @@ bool VulkanBase::isDeviceSuitable(VkPhysicalDevice device)
 {
     bool swapChainAdequate = false;
     QueueFamilyIndices indices{};
-    VkPhysicalDeviceFeatures supportedFeatures;
+    VkPhysicalDeviceFeatures supportedFeatures{};
     SwapChainSupportDetails swapChainSupport{};
     bool extensionsSupported = false;
 
@@ -402,9 +407,10 @@ bool VulkanBase::checkDeviceExtensionSupport(VkPhysicalDevice device)
 
 QueueFamilyIndices VulkanBase::findQueueFamilies(VkPhysicalDevice device)
 {
-    QueueFamilyIndices indices;
+    QueueFamilyIndices indices{};
     std::vector<VkQueueFamilyProperties> queueFamilies;
     uint32_t queueFamilyCount = 0;
+    VkBool32 presentSupport = false;
     int i = 0;
 
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
@@ -413,7 +419,7 @@ QueueFamilyIndices VulkanBase::findQueueFamilies(VkPhysicalDevice device)
     vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
     for (const auto& queueFamily : queueFamilies) {
-        VkBool32 presentSupport = false;
+        presentSupport = false;
 
         vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
 
@@ -443,7 +449,7 @@ void VulkanBase::createLogicalDevice()
     deviceFeatures.samplerAnisotropy = VK_TRUE;
     VkDeviceCreateInfo createInfo{};
     float queuePriority = 1.0f;
-    std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
+    std::set<uint32_t> uniqueQueueFamilies{indices.graphicsFamily.value(), indices.presentFamily.value()};
     VkDeviceQueueCreateInfo queueCreateInfo{};
 
     for (uint32_t queueFamily : uniqueQueueFamilies) {
@@ -479,9 +485,9 @@ void VulkanBase::createLogicalDevice()
 
 SwapChainSupportDetails VulkanBase::querySwapChainSupport(VkPhysicalDevice device)
 {
-    SwapChainSupportDetails details;
-    uint32_t formatCount;
-    uint32_t presentModeCount;
+    SwapChainSupportDetails details{};
+    uint32_t formatCount = 0;
+    uint32_t presentModeCount = 0;
 
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 
@@ -527,7 +533,7 @@ VkPresentModeKHR VulkanBase::chooseSwapPresentMode(const std::vector<VkPresentMo
 
 VkExtent2D VulkanBase::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
 {
-    int width, height;
+    int width = 0, height = 0;
     VkExtent2D actualExtent{};
 
     if (capabilities.currentExtent.width != UINT32_MAX) {
@@ -645,7 +651,7 @@ void VulkanBase::createCommandBuffers()
 
 void VulkanBase::recreateSwapChain()
 {
-    int width, height;
+    int width = 0, height = 0;
     glfwGetFramebufferSize(pWindow.get(), &width, &height);
 
     while (width == 0 || height == 0) {
@@ -683,7 +689,7 @@ void VulkanBase::cleanupSwapChain()
 
 uint32_t VulkanBase::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 {
-    VkPhysicalDeviceMemoryProperties memProperties;
+    VkPhysicalDeviceMemoryProperties memProperties{};
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
@@ -703,7 +709,7 @@ void VulkanBase::createBuffer(VkDeviceSize size,
                               VkDeviceMemory& bufferMemory)
 {
     VkBufferCreateInfo bufferInfo{};
-    VkMemoryRequirements memRequirements;
+    VkMemoryRequirements memRequirements{};
     VkMemoryAllocateInfo allocInfo{};
 
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -745,7 +751,7 @@ void VulkanBase::createImage(uint32_t width, uint32_t height,
                              VkImage& image, VkDeviceMemory& imageMemory)
 {
     VkImageCreateInfo imageInfo{};
-    VkMemoryRequirements memRequirements;
+    VkMemoryRequirements memRequirements{};
     VkMemoryAllocateInfo allocInfo{};
 
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;

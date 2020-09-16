@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS = -std=c++17
+CFLAGS = -std=c++17 -O3 -Wall
 LDFLAGS = `pkg-config --static --libs glfw3` -lvulkan
 
 INC_DIR = ./src ./src/vulkanBase ./src/vulkanApp ./src/myImgui ./imgui 
