@@ -11,6 +11,7 @@
 #include <fstream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/random.hpp>
 #include <iostream>
 #include <set>
 #include <stdexcept>
@@ -150,9 +151,12 @@ void HelloTriangleApplication::initVulkan()
     createImageViews();
     createRenderPass();
     createDescriptorSetLayout();
-    createGraphicsPipeline();
+    
     createFramebuffers();
     createCommandPool();
+    createInstanceData();
+    createInstanceBuffer();
+    createGraphicsPipeline();
     createTextureImage();
     createTextureImageView();
     createTextureSampler();
@@ -587,11 +591,13 @@ void HelloTriangleApplication::createGraphicsPipeline()
 
     //vertex buffer
     VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-    auto bindingDescription = Vertex::getBindingDescription();
-    auto attributeDescriptions = Vertex::getAttributeDescriptions();
+    std::vector<VkVertexInputBindingDescription> bindingDescription{Vertex::getBindingDescription(), InstanceData::getBindingDescription()};
+    std::vector<VkVertexInputAttributeDescription> attributeDescriptions = Vertex::getAttributeDescriptions();
+    attributeDescriptions.push_back(InstanceData::getAttributeDescriptions()[0]);
+
     vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 1;
-    vertexInputInfo.pVertexBindingDescriptions = &bindingDescription; // Optional
+    vertexInputInfo.vertexBindingDescriptionCount = bindingDescription.size();
+    vertexInputInfo.pVertexBindingDescriptions = bindingDescription.data(); // Optional
     vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
     vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data(); // Optional
 
@@ -850,11 +856,14 @@ void HelloTriangleApplication::createCommandBuffers()
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
 
+         VkBuffer instanceBuffers[] = { instanceBuffer };
+        vkCmdBindVertexBuffers(commandBuffers[i], 1, 1, instanceBuffers, offsets);
+        
         vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
         vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[i], 0, nullptr);
 
-        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()),3, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -1495,3 +1504,33 @@ void HelloTriangleApplication::createTextureSampler()
         throw std::runtime_error("failed to create texture sampler!");
     }
 }
+
+void HelloTriangleApplication::createInstanceData() {
+
+	instanceDatas.resize(3);
+
+	for (size_t i = 0; i < 3; i++) {
+		instanceDatas[i].instancePos = glm::vec3(glm::sphericalRand(1.0f));
+	}
+}
+
+void HelloTriangleApplication::createInstanceBuffer() {
+	VkDeviceSize bufferSize = sizeof(InstanceData) * instanceDatas.size();
+
+	VkBuffer stagingBuffer;
+	VkDeviceMemory stagingBufferMemory;
+	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+	void* data;
+
+	vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+	memcpy(data, instanceDatas.data(), (size_t)bufferSize);
+	vkUnmapMemory(device, stagingBufferMemory);
+
+	createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, instanceBuffer, instanceBufferMemory);
+
+	copyBuffer(stagingBuffer, instanceBuffer, bufferSize);
+
+	vkDestroyBuffer(device, stagingBuffer, nullptr);
+	vkFreeMemory(device, stagingBufferMemory, nullptr);
+}
+

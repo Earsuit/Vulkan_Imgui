@@ -45,6 +45,30 @@ struct QueueFamilyIndices {
     }
 };
 
+struct InstanceData {
+	glm::vec3 instancePos;  //数据压缩
+        //定绑定数据结构
+	static VkVertexInputBindingDescription getBindingDescription() {
+		VkVertexInputBindingDescription bindingDescription = {};
+		bindingDescription.binding = 1;
+		bindingDescription.stride = sizeof(InstanceData);
+		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE; //关键在这！
+		return bindingDescription;
+	}
+        //定字段数据结构
+	static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions() {
+		std::vector<VkVertexInputAttributeDescription> attributeDescriptions = {};
+		attributeDescriptions.resize(1);
+		attributeDescriptions[0].binding = 1;
+		attributeDescriptions[0].location = 4;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[0].offset = offsetof(InstanceData, instancePos);
+
+		return attributeDescriptions;
+	}
+};
+
+
 struct UniformBufferObject {
     glm::mat4 model;
     glm::mat4 view;
@@ -72,9 +96,9 @@ struct Vertex {
         return bindingDescription;
     }
 
-    static std::array<VkVertexInputAttributeDescription, 3> getAttributeDescriptions()
+    static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions()
     {
-        std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
+        std::vector<VkVertexInputAttributeDescription> attributeDescriptions{3};
 
         //pos
         attributeDescriptions[0].binding = 0;
@@ -147,6 +171,9 @@ private:
     VkDeviceMemory textureImageMemory;
     VkImageView textureImageView;
     VkSampler textureSampler;
+    std::vector<struct InstanceData> instanceDatas;
+    VkBuffer instanceBuffer;
+    VkDeviceMemory instanceBufferMemory;
 
     void initVulkan();
     void mainLoop();
@@ -212,6 +239,8 @@ private:
     void createTextureImageView();
     VkImageView createImageView(VkImage image, VkFormat format);
     void createTextureSampler();
+    void createInstanceData();
+    void createInstanceBuffer();
 };
 
 #endif
