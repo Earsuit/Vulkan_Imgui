@@ -6,12 +6,9 @@
 #include <iostream>
 #include <stdexcept>
 
-constexpr uint32_t WIDTH = 800;
-constexpr uint32_t HEIGHT = 600;
-
 int main()
 {
-    VulkanApp app(WIDTH, HEIGHT, "Vulkan", true);
+    VulkanApp app(1024, 768, "Vulkan", true);
 
     app.prepare();
 
